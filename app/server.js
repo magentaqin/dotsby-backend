@@ -4,6 +4,7 @@ const config = require('config')
 
 const Logger = require('./utils/logger')
 const datetimeHelper = require('./utils/datetimehelper')
+const routers = require('./routers')
 
 /**
  * Logger
@@ -49,7 +50,7 @@ app.use(async(ctx, next) => {
 
 
 app.use(bodyParser());
-
+app.use(routers);
 
 /**
  * Handle error

@@ -1,13 +1,10 @@
 const GlobalErr = {
   SERVER_ERROR: 'Server is not available now',
-  PARAMS_NOT_PROVIDED: 'Some params are not provided.'
+  AUTH_REQUIRED: 'You have to log in!',
+  NO_ACCESS_RIGHT: 'You are not allowed to view this document.'
 }
 
-const PageErr = {
-  INVALID_DOCUMENT_ID: 'Invalid document id.'
-}
 
 module.exports = {
   GlobalErr,
-  PageErr,
 }

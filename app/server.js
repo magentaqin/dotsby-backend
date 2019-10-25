@@ -49,13 +49,15 @@ app.use(async(ctx, next) => {
 })
 
 
-app.use(bodyParser());
+app.use(bodyParser({
+  strict: true,
+}));
 app.use(routers);
 
 /**
  * Handle error
  */
-app.on('error', (err, ctx) => { errLogger(err, ctx)})
+app.on('error', (err, ctx) => { errLogger(err, ctx) })
 
 let server = null
 

@@ -12,7 +12,7 @@ const combineRouters = (routers) => {
 }
 
 const routers = combineRouters([
-  documentRouter
+  documentRouter,
 ])
 
 module.exports = routers;

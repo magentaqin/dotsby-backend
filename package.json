@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "nodemon app --watch app",
-    "eslint": "eslint ."
+    "eslint": "eslint . --fix"
   },
   "_moduleAliases": {
     "@app": "./app"

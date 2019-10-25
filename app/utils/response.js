@@ -8,7 +8,12 @@ const fail = (ctx, errMsg = 'Bad Request', status = 400) => {
   ctx.throw(status, JSON.stringify(error))
 }
 
+const paramsRequiredFail = (ctx, invalidField) => {
+  fail(ctx, `${invalidField} is required.`, 400)
+}
+
 module.exports = {
   success,
   fail,
+  paramsRequiredFail,
 }

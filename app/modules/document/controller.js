@@ -1,10 +1,10 @@
 const {
-  validateString,
+  // validateString,
   getInvalidRequiredField,
   getInvalidArrRequiredField,
 } = require('@app/utils/validator')
 const responseHelper = require('@app/utils/response')
-const { GlobalErr } = require('@app/utils/errorMessages')
+// const { GlobalErr } = require('@app/utils/errorMessages')
 
 // AUTH REQUIRED
 const getDocumentToken = async(ctx) => {

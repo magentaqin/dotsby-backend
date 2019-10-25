@@ -1,4 +1,5 @@
 const { getPartialObj } = require('./obj')
+
 const validateString = str => str && str.trim().length > 0;
 
 const getInvalidRequiredField = (obj) => {

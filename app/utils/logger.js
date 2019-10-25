@@ -20,7 +20,7 @@ class Logger {
         autoClose: true,
       }
 
-      const logDir = path.resolve(__dirname, '../../', logs)
+      const logDir = path.resolve(__dirname, '../../', 'logs')
 
       if (!fs.existsSync(logDir)) {
         fs.mkdirSync(logDir)

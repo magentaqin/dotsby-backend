@@ -45,5 +45,12 @@
     "space-before-function-paren": 0,
     "import/no-extraneous-dependencies": 0,
     "no-useless-escape": 0
+  },
+  "settings": {
+    "import/resolver": {
+      "alias": [
+        ["@app", "./app"]
+      ]
+    }
   }
 }

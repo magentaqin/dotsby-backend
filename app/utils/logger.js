@@ -17,7 +17,7 @@ class Logger {
         encoding: 'utf8',
         fd: null,
         mode: 0o666,
-        autoClose: true
+        autoClose: true,
       }
 
       const logDir = path.resolve(__dirname, '../../', logs)
@@ -67,7 +67,6 @@ class Logger {
 
     console.error(chalk.red(log))
   }
-
 }
 
 module.exports = Logger

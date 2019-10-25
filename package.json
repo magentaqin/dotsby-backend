@@ -9,9 +9,16 @@
     "module-alias": "^2.2.2"
   },
   "scripts": {
-    "start": "node app"
+    "start": "nodemon app --watch app",
+    "eslint": "eslint ."
   },
   "_moduleAliases": {
     "@app": "./app"
+  },
+  "devDependencies": {
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "nodemon": "^1.19.4"
   }
 }

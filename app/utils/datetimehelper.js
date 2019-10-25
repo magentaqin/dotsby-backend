@@ -1,10 +1,6 @@
-const formatUTCDatetime = (date = new Date()) => {
-  return date.toUTCString()
-}
+const formatUTCDatetime = (date = new Date()) => date.toUTCString()
 
-const formatTimestamp = (date = new Date()) => {
-  return date.getTime()
-}
+const formatTimestamp = (date = new Date()) => date.getTime()
 
 module.exports = {
   formatUTCDatetime,

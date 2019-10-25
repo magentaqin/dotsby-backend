@@ -1,0 +1,49 @@
+{
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "node": true,
+    "mocha": true
+  },
+  "extends": "airbnb-base",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": false
+    },
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-console": "off",
+    "no-const-assign": "warn",
+    "no-this-before-super": "warn",
+    "no-undef": "warn",
+    "no-unreachable": "warn",
+    "no-unused-vars": "warn",
+    "no-unused-expressions": 0,
+    "constructor-super": "warn",
+    "valid-typeof": "warn",
+    "semi": 0,
+    "arrow-parens": 0,
+    "class-methods-use-this": [0],
+    "indent": ["error", 2, {
+      "SwitchCase": 1
+    }],
+    "no-class-assign": 0,
+    "import/extensions": [0],
+    "no-underscore-dangle": 0,
+    "camelcase": 0,
+    "no-plusplus": ["error", {
+      "allowForLoopAfterthoughts": true
+    }],
+    "radix": [0],
+    "no-trailing-spaces": ["error", {
+      "skipBlankLines": true
+    }],
+    "consistent-return": 0,
+    "object-property-newline": 0,
+    "space-before-function-paren": 0,
+    "import/no-extraneous-dependencies": 0,
+    "no-useless-escape": 0
+  }
+}

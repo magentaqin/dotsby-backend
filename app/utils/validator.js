@@ -2,6 +2,8 @@ const { getPartialObj } = require('./obj')
 
 const validateString = str => str && str.trim().length > 0;
 
+const validateNumber = val => !Number.isNaN(parseFloat(val)) && Number.isFinite(val);
+
 const getInvalidRequiredField = (obj) => {
   let invalidKey = ''
   Object.keys(obj).every(key => {
@@ -32,4 +34,5 @@ module.exports = {
   validateString,
   getInvalidRequiredField,
   getInvalidArrRequiredField,
+  validateNumber,
 }

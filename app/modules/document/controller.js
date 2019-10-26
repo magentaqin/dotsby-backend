@@ -1,10 +1,11 @@
 const {
-  // validateString,
+  validateString,
+  validateNumber,
   getInvalidRequiredField,
   getInvalidArrRequiredField,
 } = require('@app/utils/validator')
 const responseHelper = require('@app/utils/response')
-// const { GlobalErr } = require('@app/utils/errorMessages')
+const { GlobalErr } = require('@app/utils/errorMessages')
 
 // AUTH REQUIRED
 const getDocumentToken = async(ctx) => {
@@ -54,8 +55,9 @@ const createDocument = async(ctx) => {
   }
 
   // validate value type
-
-  // validate whether version is number.
+  if (!validateNumber(version)) {
+    responseHelper.fail(ctx, `Version ${GlobalErr.NUMBER_REQUIRED}.`, 400);
+  }
 
   const data = {
     document_id: 120391023910923,

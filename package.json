@@ -10,10 +10,15 @@
   },
   "scripts": {
     "start": "nodemon app --watch app",
-    "lint": "eslint . --fix",
+    "test": "NODE_ENV=test nyc mocha --recursive",
+    "lint": "eslint . --ext .test.js --fix",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0"
   },
-  "pre-commit": ["precommit-msg", "lint"],
+  "pre-commit": [
+    "precommit-msg",
+    "lint",
+    "test"
+  ],
   "_moduleAliases": {
     "@app": "./app"
   },
@@ -22,7 +27,9 @@
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.18.2",
+    "mocha": "^6.2.2",
     "nodemon": "^1.19.4",
+    "nyc": "^14.1.1",
     "pre-commit": "^1.2.2"
   }
 }

@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "axios": "^0.19.0",
     "chalk": "^2.4.2",
     "config": "^3.2.3",
     "koa": "^2.10.0",
@@ -20,7 +21,8 @@
     "test"
   ],
   "_moduleAliases": {
-    "@app": "./app"
+    "@app": "./app",
+    "@test": "./test"
   },
   "devDependencies": {
     "eslint": "^6.5.1",

@@ -49,7 +49,8 @@
   "settings": {
     "import/resolver": {
       "alias": [
-        ["@app", "./app"]
+        ["@app", "./app"],
+        ["@test", "./test"]
       ]
     }
   }

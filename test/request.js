@@ -3,7 +3,7 @@ const config = require('config')
 
 const client = axios.create({
   baseURL: `http://localhost:${config.port}`,
-  headers: { 'X-Requested-With': 'XMLHttpRequest' },
+  headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
   withCredentials: true,
   responseType: 'json',
   timeout: 20000,
@@ -18,9 +18,18 @@ const request = async(url, method, data, headerData = {}) => {
     headers
   }
 
-  const resp = await client.request(options).catch(err => console.error(err))
-  return resp;
+  try {
+    const resp = await client.request(options)
+    return resp
+  } catch(err) {
+    const { status, data } = err.response;
+    return {
+      status,
+      data
+    }
+  }
 }
+
 
 const http = {
   get: (url, data, headerData = {}) => {

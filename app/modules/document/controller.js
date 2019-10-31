@@ -60,7 +60,63 @@ const createDocument = async(ctx) => {
   }
 
   const data = {
-    document_id: 120391023910923,
+    document_id: 1,
+  }
+
+  responseHelper.success(ctx, data, 200)
+}
+
+
+const getDocumentInfo = async(ctx) => {
+  // 400
+  console.log(ctx.request.body)
+  const { document_id } = ctx.request.body;
+  if (!document_id) {
+    responseHelper.paramsRequiredFail(ctx, 'document_id')
+  }
+
+  // 401 TODO
+
+  // mock data. TEMPORARY
+  const data = {
+    document_id: 1,
+    document_token: '1qazxsw2',
+    version: 0.1,
+    doc_title: 'Sample Doc',
+    sections: [
+      {
+        section_title: 'User Section',
+        pages: [
+          {
+            page_title: 'User Section Description',
+            is_root_path: true,
+            path: '/user',
+            content: '<h1>This part is written by John.</h1>'
+          },
+          {
+            page_title: 'Login',
+            path: '/user/login',
+            content: '<h1>Login Api</h1>',
+          }
+        ],
+      },
+      {
+        section_title: 'Account Section',
+        path: '/account',
+        pages: [
+          {
+            page_title: 'Create Account',
+            path: '/account/create',
+            content: '<h1>Create Account Api</h1>',
+          },
+          {
+            page_title: 'Get Account Info',
+            path: '/account/info',
+            content: '<h1>Get Account Info Api</h1>',
+          }
+        ]
+      }
+    ]
   }
 
   responseHelper.success(ctx, data, 200)
@@ -69,4 +125,5 @@ const createDocument = async(ctx) => {
 module.exports = {
   getDocumentToken,
   createDocument,
+  getDocumentInfo,
 }

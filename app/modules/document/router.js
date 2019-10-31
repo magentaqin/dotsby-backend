@@ -7,5 +7,6 @@ const router = new Router({ prefix: `${config.apiPrefix}/document` })
 router
   .get('getDocumentToken', '/getDocumentToken', controller.getDocumentToken)
   .post('createDocument', '/createDocument', controller.createDocument)
+  .get('getDocumentInfo', '/getDocumentInfo', controller.getDocumentInfo)
 
 module.exports = router;

@@ -22,6 +22,8 @@ const createDocument = async(ctx) => {
     document_token, version, doc_title, sections,
   } = ctx.request.body;
 
+  console.log('body', ctx.request.body)
+
   // validate if document_token already existed. IF NOT EXIST, THROW 401. TODO.
   // validate if verion already existed. IF existed, THROW 400. document already existsed. TODO.
 
@@ -55,9 +57,9 @@ const createDocument = async(ctx) => {
   }
 
   // validate value type
-  if (!validateNumber(version)) {
-    responseHelper.fail(ctx, `Version ${GlobalErr.NUMBER_REQUIRED}.`, 400);
-  }
+  // if (!validateNumber(version)) {
+  //   responseHelper.fail(ctx, `Version ${GlobalErr.NUMBER_REQUIRED}.`, 400);
+  // }
 
   const data = {
     document_id: 1,
@@ -69,7 +71,6 @@ const createDocument = async(ctx) => {
 
 const getDocumentInfo = async(ctx) => {
   // 400
-  console.log(ctx.request.body)
   const { document_id } = ctx.request.body;
   if (!document_id) {
     responseHelper.paramsRequiredFail(ctx, 'document_id')

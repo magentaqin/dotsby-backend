@@ -1,5 +1,6 @@
 const axios = require('axios')
 const config = require('config')
+const { GlobalErrorCodes, GlobalErr } = require('@app/utils/errorMessages')
 
 const client = axios.create({
   baseURL: `http://localhost:${config.port}`,
@@ -22,10 +23,20 @@ const request = async(url, method, data, headerData = {}) => {
     const resp = await client.request(options)
     return resp
   } catch(err) {
-    const { status, data } = err.response;
-    return {
-      status,
-      data
+    if (err.response) {
+      const { status, data } = err.response;
+      return {
+        status,
+        data
+      }
+    } else {
+      return {
+        status: 500,
+        data: {
+          code: GlobalErrorCodes.SERVER_ERROR,
+          msg: GlobalErr[GlobalErrorCodes.SERVER_ERROR]
+        }
+      }
     }
   }
 }

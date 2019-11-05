@@ -1,6 +1,6 @@
 {
   "productionEnvs": ["staging", "production"],
-  "port": 3000,
+  "port": 4000,
   "localhost": "127.0.0.1",
   "apiPrefix": "/api/v1"
 }

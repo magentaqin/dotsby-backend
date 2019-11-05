@@ -1,11 +1,18 @@
+const GlobalErrorCodes = {
+  SERVER_ERROR: 'SERVER_ERROR',
+  AUTH_FAILED: 'AUTH_FAILED',
+  OPERATION_NOT_ALLOWED: 'OPERATION_NOT_ALLOWED',
+  INVALID_PARAMETERS: 'INVALID_PARAMETERS'
+}
+
 const GlobalErr = {
-  SERVER_ERROR: 'Server is not available now',
-  AUTH_REQUIRED: 'You have to log in!',
-  NO_ACCESS_RIGHT: 'You are not allowed to view this document.',
-  NUMBER_REQUIRED: 'must be a number',
+  [GlobalErrorCodes.SERVER_ERROR]: 'Server is not available now',
+  [GlobalErrorCodes.AUTH_FAILED]: 'User is not authenticated.',
+  [GlobalErrorCodes.OPERATION_NOT_ALLOWED]: 'You have no access to this resource.',
 }
 
 
 module.exports = {
+  GlobalErrorCodes,
   GlobalErr,
 }

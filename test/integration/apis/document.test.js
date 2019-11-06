@@ -26,7 +26,7 @@ describe('Test Document APIS', async () => {
       assert(resp.status === 200)
     });
 
-  //   // 401 TODO
+    //   // 401 TODO
 
   //   // 400 TODO
   });
@@ -50,6 +50,5 @@ describe('Test Document APIS', async () => {
       const resp = await http.get(getDocInfoUrl)
       assert(resp.status === 400)
     })
-
   })
 });

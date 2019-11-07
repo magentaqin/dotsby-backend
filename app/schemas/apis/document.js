@@ -1,4 +1,4 @@
-const { sectionsSchemaId, documentId, documentTokenId } = require('../document')
+const { sectionsSchemaId, documentId, documentTokenId, uniqueSectionsSchemaId } = require('../document')
 
 /**
  * create document
@@ -34,7 +34,7 @@ const createDocumentQuerySchema = {
   },
 }
 
-const createDocumentResponseSchema = {
+const documentIdSchema = {
   type: 'object',
   required: [
     'document_id',
@@ -46,6 +46,11 @@ const createDocumentResponseSchema = {
   },
 }
 
+const createDocumentResponseSchema = documentIdSchema
+
+/**
+ * get document token
+ */
 const getDocumentTokenResponseSchema = {
   type: 'object',
   required: [
@@ -59,8 +64,45 @@ const getDocumentTokenResponseSchema = {
 }
 
 
+/**
+ * get document info
+ */
+const getDocumentInfoQuerySchema = documentIdSchema;
+const getDocumentInfoResponseSchema = {
+  type: 'object',
+  required: [
+    'document_id',
+    'document_token',
+    'version',
+    'doc_title',
+    'sections',
+  ],
+  properties: {
+    document_token: {
+      $ref: documentTokenId,
+    },
+    version: {
+      type: 'number',
+      minimum: 0,
+      description: 'version of document',
+    },
+    doc_title: {
+      type: 'string',
+      minLength: 1,
+      maxLength: 50,
+      format: 'ascii_printable',
+      description: 'title of document',
+    },
+    sections: {
+      $ref: uniqueSectionsSchemaId,
+    },
+  },
+}
+
 module.exports = {
   createDocumentQuerySchema,
   createDocumentResponseSchema,
   getDocumentTokenResponseSchema,
+  getDocumentInfoQuerySchema,
+  getDocumentInfoResponseSchema,
 }

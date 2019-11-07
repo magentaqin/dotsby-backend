@@ -3,15 +3,33 @@ const { Validator } = require('jsonschema');
 const documentValidator = new Validator();
 
 const sectionsSchemaId = '/document/sections';
+const uniqueSectionsSchemaId = 'document/sections_with_id'
 const pagesSchemaId = '/document/sections/pages';
+const uniquePagesSchemaId = 'document/section/pages_with_id'
 const documentId = '/document/id';
 const documentTokenId = '/document/token'
+const sectionId = '/document/section/id'
+const pageId = '/document/section/page/id'
 
 const documentIdSchema = {
   id: documentId,
   type: 'number',
   minimum: 0,
   description: 'auto increment document id',
+}
+
+const sectionIdSchema = {
+  id: sectionId,
+  type: 'number',
+  minimum: 0,
+  description: 'auto increment section id',
+}
+
+const pageIdSchema = {
+  id: pageId,
+  type: 'number',
+  minimum: 0,
+  description: 'auto increment page id',
 }
 
 const documentTokenSchema = {
@@ -24,7 +42,6 @@ const documentTokenSchema = {
 }
 
 const pagesSchema = {
-  id: pagesSchemaId,
   type: 'array',
   description: 'pages of section',
   minItems: 1,
@@ -36,6 +53,9 @@ const pagesSchema = {
       'content',
     ],
     properties: {
+      page_id: {
+        $ref: pageId,
+      },
       page_title: {
         type: 'string',
         minLength: 1,
@@ -64,8 +84,29 @@ const pagesSchema = {
   },
 }
 
+const getPagesSchema = (hasId) => {
+  const {items, ...restConfig } = pagesSchema
+  const { required, ...restItems } = items;
+  if (hasId) {
+    return {
+      id: uniquePagesSchemaId,
+      ...restConfig,
+      items: {
+        ...restItems,
+        required: [
+          ...required,
+          'page_id'
+        ]
+      }
+    }
+  }
+  return {
+    id: pagesSchemaId,
+    ...pagesSchema
+  }
+}
+
 const sectionsSchema = {
-  id: sectionsSchemaId,
   type: 'array',
   description: 'sections of document',
   minItems: 1,
@@ -76,6 +117,9 @@ const sectionsSchema = {
       'pages',
     ],
     properties: {
+      section_id: {
+        $ref: sectionId,
+      },
       section_title: {
         type: 'string',
         minLength: 1,
@@ -90,8 +134,43 @@ const sectionsSchema = {
   },
 }
 
-documentValidator.addSchema(pagesSchema, pagesSchemaId)
-documentValidator.addSchema(sectionsSchema, sectionsSchemaId)
+const getSectionsSchema = (hasId) => {
+  const { items, ...restConfig } = sectionsSchema
+  const { properties, required, ...restItems } = items
+  if (hasId) {
+    return {
+      id: uniqueSectionsSchemaId,
+      ...restConfig,
+      items: {
+        ...restItems,
+        required: [
+          ...required,
+          'section_id'
+        ],
+        properties: {
+          ...properties,
+          pages: {
+            $ref: uniquePagesSchemaId
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    id: sectionsSchemaId,
+    ...sectionsSchema,
+  }
+}
+
+documentValidator.addSchema(pageIdSchema, pageId)
+documentValidator.addSchema(getPagesSchema(), pagesSchemaId)
+documentValidator.addSchema(getPagesSchema(true), uniquePagesSchemaId)
+
+documentValidator.addSchema(sectionIdSchema, sectionId)
+documentValidator.addSchema(getSectionsSchema(), sectionsSchemaId)
+documentValidator.addSchema(getSectionsSchema(true), uniqueSectionsSchemaId)
+
 documentValidator.addSchema(documentIdSchema, documentId)
 documentValidator.addSchema(documentTokenSchema, documentTokenId)
 
@@ -105,4 +184,5 @@ module.exports = {
   documentValidator,
   documentTokenId,
   documentTokenSchema,
+  uniqueSectionsSchemaId
 }

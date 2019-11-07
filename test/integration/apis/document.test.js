@@ -9,6 +9,7 @@ const { documentValidator } = require('@app/schemas/document')
 const {
   createDocumentResponseSchema,
   getDocumentTokenResponseSchema,
+  getDocumentInfoResponseSchema,
 } = require('@app/schemas/apis/document')
 const { errorResponseSchema } = require('@app/schemas/httpResponse')
 const { GlobalErrorCodes } = require('@app/utils/errorMessages')

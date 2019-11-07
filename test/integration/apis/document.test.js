@@ -8,15 +8,33 @@ const { sampleDocument } = require('@test/sampleData')
 const { documentValidator } = require('@app/schemas/document')
 const {
   createDocumentResponseSchema,
+  getDocumentTokenResponseSchema,
 } = require('@app/schemas/apis/document')
 const { errorResponseSchema } = require('@app/schemas/httpResponse')
 const { GlobalErrorCodes } = require('@app/utils/errorMessages')
 
 const validator = new Validator()
+
+const getDocTokenUrl = router.url('getDocumentToken')
 const createDocUrl = router.url('createDocument')
 const getDocInfoUrl = router.url('getDocumentInfo')
 
 describe('Test Document APIS', async () => {
+  /**
+   * Get Document Token Api
+   */
+  describe('Get Document Token', async() => {
+    it('should return document token and 200 when authorized', async() => {
+      const resp = await http.get(getDocTokenUrl)
+      const result = documentValidator.validate(resp.data.data, getDocumentTokenResponseSchema)
+      assert(result.errors.length === 0)
+      assert(resp.status === 200)
+    })
+
+    // 401. TODO.
+    // 403. TODO.
+  })
+
   /**
    * Create Document Api
    */

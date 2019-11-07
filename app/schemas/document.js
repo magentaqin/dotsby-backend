@@ -5,12 +5,22 @@ const documentValidator = new Validator();
 const sectionsSchemaId = '/document/sections';
 const pagesSchemaId = '/document/sections/pages';
 const documentId = '/document/id';
+const documentTokenId = '/document/token'
 
 const documentIdSchema = {
   id: documentId,
   type: 'number',
   minimum: 0,
   description: 'auto increment document id',
+}
+
+const documentTokenSchema = {
+  id: documentTokenId,
+  type: 'string',
+  minLength: 1,
+  maxLength: 100,
+  format: 'ascii_printable',
+  description: 'auto generated document_token',
 }
 
 const pagesSchema = {
@@ -83,6 +93,7 @@ const sectionsSchema = {
 documentValidator.addSchema(pagesSchema, pagesSchemaId)
 documentValidator.addSchema(sectionsSchema, sectionsSchemaId)
 documentValidator.addSchema(documentIdSchema, documentId)
+documentValidator.addSchema(documentTokenSchema, documentTokenId)
 
 module.exports = {
   documentId,
@@ -92,4 +103,6 @@ module.exports = {
   pagesSchema,
   sectionsSchema,
   documentValidator,
+  documentTokenId,
+  documentTokenSchema,
 }

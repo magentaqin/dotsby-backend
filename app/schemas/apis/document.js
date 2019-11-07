@@ -1,4 +1,4 @@
-const { sectionsSchemaId, documentId } = require('../document')
+const { sectionsSchemaId, documentId, documentTokenId } = require('../document')
 
 /**
  * create document
@@ -14,11 +14,7 @@ const createDocumentQuerySchema = {
   ],
   properties: {
     document_token: {
-      type: 'string',
-      minLength: 1,
-      maxLength: 32,
-      format: 'ascii_printable',
-      description: 'auto generated document_token',
+      $ref: documentTokenId,
     },
     version: {
       type: 'number',
@@ -50,7 +46,21 @@ const createDocumentResponseSchema = {
   },
 }
 
+const getDocumentTokenResponseSchema = {
+  type: 'object',
+  required: [
+    'document_token'
+  ],
+  properties: {
+    document_token: {
+      $ref: documentTokenId
+    }
+  }
+}
+
+
 module.exports = {
   createDocumentQuerySchema,
   createDocumentResponseSchema,
+  getDocumentTokenResponseSchema,
 }

@@ -1,11 +1,10 @@
-const {
-  validateString,
-  validateNumber,
-  getInvalidRequiredField,
-  getInvalidArrRequiredField,
-} = require('@app/utils/validator')
 const responseHelper = require('@app/utils/response')
 const { GlobalErr } = require('@app/utils/errorMessages')
+const { documentValidator } = require('@app/schemas/document')
+const {
+  createDocumentQuerySchema,
+  createDocumentResponseSchema,
+} = require('@app/schemas/apis/document')
 
 // AUTH REQUIRED
 const getDocumentToken = async(ctx) => {
@@ -18,48 +17,17 @@ const getDocumentToken = async(ctx) => {
 }
 
 const createDocument = async(ctx) => {
-  const {
-    document_token, version, doc_title, sections,
-  } = ctx.request.body;
-
-  console.log('body', ctx.request.body)
-
   // validate if document_token already existed. IF NOT EXIST, THROW 401. TODO.
-  // validate if verion already existed. IF existed, THROW 400. document already existsed. TODO.
+  // validate if verion already existed. IF existed, THROW 403. document already existsed. TODO.
 
-  // handle required fields
-  const requiredFields = {
-    document_token,
-    version,
-    doc_title,
-    sections,
+  // schema validation
+  const validationResult = documentValidator.validate(ctx.request.body, createDocumentQuerySchema)
+  if (validationResult.errors.length) {
+    const error = validationResult.errors[0]
+    const { message, property } = error
+    const errMsg = property + message;
+    responseHelper.paramsFail(ctx, errMsg)
   }
-  const invalidField = getInvalidRequiredField(requiredFields)
-  if (invalidField) {
-    responseHelper.paramsRequiredFail(ctx, invalidField)
-  }
-
-  const invalidSectionField = getInvalidArrRequiredField(sections, ['section_title', 'pages'])
-  if (invalidSectionField) {
-    responseHelper.paramsRequiredFail(ctx, invalidSectionField)
-  }
-
-  let invalidPageField = ''
-  sections.every(section => {
-    invalidPageField = getInvalidArrRequiredField(section.pages, ['page_title', 'path', 'content'])
-    if (invalidPageField) {
-      return false;
-    }
-    return true;
-  })
-  if (invalidPageField) {
-    responseHelper.paramsRequiredFail(ctx, invalidPageField)
-  }
-
-  // validate value type
-  // if (!validateNumber(version)) {
-  //   responseHelper.fail(ctx, `Version ${GlobalErr.NUMBER_REQUIRED}.`, 400);
-  // }
 
   const data = {
     document_id: 1,
@@ -73,7 +41,7 @@ const getDocumentInfo = async(ctx) => {
   // 400
   const { document_id } = ctx.request.body;
   if (!document_id) {
-    responseHelper.paramsRequiredFail(ctx, 'document_id')
+    responseHelper.paramsFail(ctx, 'document_id is required')
   }
 
   // 401 TODO

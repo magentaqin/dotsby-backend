@@ -1,15 +1,18 @@
-const path = require('path')
-const moduleAlias = require('module-alias')
-
-moduleAlias.addAlias('@test', path.join(__dirname, '../../'))
-moduleAlias.addAlias('@app', path.join(__dirname, '../../../app'))
+require('module-alias/register');
 
 const assert = require('assert')
+const { Validator } = require('jsonschema');
 const http = require('@test/request')
 const router = require('@app/modules/document/router')
 const { sampleDocument } = require('@test/sampleData')
+const { documentValidator } = require('@app/schemas/document')
+const {
+  createDocumentResponseSchema,
+} = require('@app/schemas/apis/document')
+const { errorResponseSchema } = require('@app/schemas/httpResponse')
+const { GlobalErrorCodes } = require('@app/utils/errorMessages')
 
-
+const validator = new Validator()
 const createDocUrl = router.url('createDocument')
 const getDocInfoUrl = router.url('getDocumentInfo')
 
@@ -21,14 +24,27 @@ describe('Test Document APIS', async () => {
     // 200 OK
     it('should return document id and 200 status when document is created successfully', async() => {
       const resp = await http.post(createDocUrl, sampleDocument)
-      assert(resp.data.data !== undefined)
-      assert(resp.data.data.document_id !== undefined)
+
+      const validationResult = documentValidator
+        .validate(
+          resp.data.data,
+          createDocumentResponseSchema,
+        );
+      assert(validationResult.errors.length === 0)
       assert(resp.status === 200)
     });
 
-    //   // 401 TODO
+    // 400
+    it('should return error code INVALID_PARAMETER and 400 status when query schema validation failed', async() => {
+      const resp = await http.post(createDocUrl, {})
+      assert(resp.status === 400)
+      assert(validator.validate(resp.data, errorResponseSchema).errors.length === 0)
+      assert(resp.data.code === GlobalErrorCodes.INVALID_PARAMETERS)
+    })
 
-  //   // 400 TODO
+    // 401 TODO
+
+    // 403 TODO
   });
 
 

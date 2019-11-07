@@ -8,17 +8,17 @@ const success = (ctx, data = '', status = 200) => {
 }
 
 const fail = (ctx, errorCode, errMsg, status = 400) => {
-  const error = { code: errorCode, msg: errMsg }
+  const error = { code: errorCode, message: errMsg }
   Logger.error(JSON.stringify(error))
   ctx.throw(status, JSON.stringify(error))
 }
 
-const paramsRequiredFail = (ctx, invalidField) => {
-  fail(ctx, GlobalErrorCodes.INVALID_PARAMETERS, `${invalidField} is required.`, 400)
+const paramsFail = (ctx, errMsg) => {
+  fail(ctx, GlobalErrorCodes.INVALID_PARAMETERS, errMsg, 400)
 }
 
 module.exports = {
   success,
   fail,
-  paramsRequiredFail,
+  paramsFail,
 }

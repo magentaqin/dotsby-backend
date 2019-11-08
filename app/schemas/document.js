@@ -3,9 +3,9 @@ const { Validator } = require('jsonschema');
 const documentValidator = new Validator();
 
 const sectionsSchemaId = '/document/sections';
-const uniqueSectionsSchemaId = 'document/sections_with_id'
+const uniqueSectionsSchemaId = '/document/sections_with_id'
 const pagesSchemaId = '/document/sections/pages';
-const uniquePagesSchemaId = 'document/section/pages_with_id'
+const uniquePagesSchemaId = '/document/section/pages_with_id'
 const documentId = '/document/id';
 const documentTokenId = '/document/token'
 const sectionId = '/document/section/id'

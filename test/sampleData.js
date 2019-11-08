@@ -38,7 +38,7 @@ const sampleDocument = {
   ]
 }
 
-const documentInfo = {
+const sampleDocumentInfo = {
   document_id: 1,
   document_token: '1qazxsw2',
   version: 0.1,
@@ -87,4 +87,5 @@ const documentInfo = {
 
 module.exports = {
   sampleDocument,
+  sampleDocumentInfo
 }

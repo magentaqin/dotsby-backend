@@ -74,7 +74,8 @@ describe('Test Document APIS', async () => {
     // 200 OK
     it('should return document info and 200 status when authorized', async() => {
       const resp = await http.get(getDocInfoUrl, { document_id: 1 })
-      assert(resp.data.data !== undefined)
+      const result = documentValidator.validate(resp.data.data, getDocumentInfoResponseSchema)
+      assert(result.errors.length === 0)
       assert(resp.status === 200)
     })
 
@@ -82,8 +83,10 @@ describe('Test Document APIS', async () => {
 
     // 400
     it('should return 400 status when document id is not passed', async() => {
-      const resp = await http.get(getDocInfoUrl)
+      const resp = await http.get(getDocInfoUrl, { document_id: null })
       assert(resp.status === 400)
+      assert(validator.validate(resp.data, errorResponseSchema).errors.length === 0)
+      assert(resp.data.code === GlobalErrorCodes.INVALID_PARAMETERS)
     })
   })
 });

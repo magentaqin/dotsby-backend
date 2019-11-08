@@ -46,7 +46,7 @@ const getDocumentInfo = async(ctx) => {
   // 401 TODO
 
   // mock data. TEMPORARY
-  const data =sampleDocumentInfo
+  const data = sampleDocumentInfo
 
   responseHelper.success(ctx, data, 200)
 }

@@ -2,6 +2,7 @@ const sampleDocument = {
   document_token: '1qazxsw2',
   version: 0.1,
   doc_title: 'Sample Doc',
+  is_private: false,
   sections: [
     {
       section_title: 'User Section',
@@ -43,6 +44,7 @@ const sampleDocumentInfo = {
   document_token: '1qazxsw2',
   version: 0.1,
   doc_title: 'Sample Doc',
+  is_private: false,
   sections: [
     {
       section_id: 1,

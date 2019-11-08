@@ -16,6 +16,10 @@ const createDocumentQuerySchema = {
     document_token: {
       $ref: documentTokenId,
     },
+    is_private: {
+      type: 'boolean',
+      description: 'whether this document is private',
+    },
     version: {
       type: 'number',
       minimum: 0,
@@ -80,6 +84,10 @@ const getDocumentInfoResponseSchema = {
   properties: {
     document_token: {
       $ref: documentTokenId,
+    },
+    is_private: {
+      type: 'boolean',
+      description: 'whether this document is private',
     },
     version: {
       type: 'number',

@@ -1,6 +1,7 @@
 const Koa = require('koa')
 const bodyParser = require('koa-bodyparser')
 const config = require('config')
+const cors = require('@koa/cors');
 
 const Logger = require('./utils/logger')
 const datetimeHelper = require('./utils/datetimehelper')
@@ -47,6 +48,13 @@ app.use(async(ctx, next) => {
   const ms = Date.now() - start
   debugLogger(ctx, ms)
 })
+
+
+const corsOptions = {
+  origin: 'http://localhost:3000',
+}
+
+app.use(cors(corsOptions))
 
 
 app.use(bodyParser({

@@ -5,7 +5,6 @@ const { GlobalErrorCodes, GlobalErr } = require('@app/utils/errorMessages')
 const client = axios.create({
   baseURL: `http://localhost:${config.port}`,
   headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
-  withCredentials: true,
   responseType: 'json',
   timeout: 20000,
 })
@@ -16,39 +15,33 @@ const request = async(url, method, data, headerData = {}) => {
     url,
     method,
     data,
-    headers
+    headers,
   }
 
   try {
     const resp = await client.request(options)
     return resp
-  } catch(err) {
+  } catch (err) {
     if (err.response) {
-      const { status, data } = err.response;
       return {
-        status,
-        data
+        status: err.response.status,
+        data: err.response.data,
       }
-    } else {
-      return {
-        status: 500,
-        data: {
-          code: GlobalErrorCodes.SERVER_ERROR,
-          msg: GlobalErr[GlobalErrorCodes.SERVER_ERROR]
-        }
-      }
+    }
+    return {
+      status: 500,
+      data: {
+        code: GlobalErrorCodes.SERVER_ERROR,
+        msg: GlobalErr[GlobalErrorCodes.SERVER_ERROR],
+      },
     }
   }
 }
 
 
 const http = {
-  get: (url, data, headerData = {}) => {
-    return request(url, 'GET', data, headerData)
-  },
-  post: (url, data, headerData = {}) => {
-    return request(url, 'POST', data, headerData)
-  },
+  get: (url, data, headerData = {}) => request(url, 'GET', data, headerData),
+  post: (url, data, headerData = {}) => request(url, 'POST', data, headerData),
 }
 
 module.exports = http

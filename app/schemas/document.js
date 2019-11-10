@@ -14,21 +14,21 @@ const pageId = '/document/section/page/id'
 const documentIdSchema = {
   id: documentId,
   type: 'number',
-  minimum: 0,
+  minimum: 1,
   description: 'auto increment document id',
 }
 
 const sectionIdSchema = {
   id: sectionId,
   type: 'number',
-  minimum: 0,
+  minimum: 1,
   description: 'auto increment section id',
 }
 
 const pageIdSchema = {
   id: pageId,
   type: 'number',
-  minimum: 0,
+  minimum: 1,
   description: 'auto increment page id',
 }
 
@@ -85,7 +85,7 @@ const pagesSchema = {
 }
 
 const getPagesSchema = (hasId) => {
-  const {items, ...restConfig } = pagesSchema
+  const { items, ...restConfig } = pagesSchema
   const { required, ...restItems } = items;
   if (hasId) {
     return {
@@ -95,14 +95,14 @@ const getPagesSchema = (hasId) => {
         ...restItems,
         required: [
           ...required,
-          'page_id'
-        ]
-      }
+          'page_id',
+        ],
+      },
     }
   }
   return {
     id: pagesSchemaId,
-    ...pagesSchema
+    ...pagesSchema,
   }
 }
 
@@ -145,15 +145,15 @@ const getSectionsSchema = (hasId) => {
         ...restItems,
         required: [
           ...required,
-          'section_id'
+          'section_id',
         ],
         properties: {
           ...properties,
           pages: {
-            $ref: uniquePagesSchemaId
-          }
-        }
-      }
+            $ref: uniquePagesSchemaId,
+          },
+        },
+      },
     }
   }
 
@@ -184,5 +184,5 @@ module.exports = {
   documentValidator,
   documentTokenId,
   documentTokenSchema,
-  uniqueSectionsSchemaId
+  uniqueSectionsSchemaId,
 }

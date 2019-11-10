@@ -1,7 +1,11 @@
 const extractErrMsg = (validationResult) => {
+  let errMsg = 'Please pass at least one parameter.';
   const error = validationResult.errors[0]
-  const { message, property } = error
-  const errMsg = property + message;
+
+  if (error) {
+    const { message, property } = error
+    errMsg = `${property} ${message}`
+  }
   return errMsg;
 }
 

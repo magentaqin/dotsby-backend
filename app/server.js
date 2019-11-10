@@ -50,16 +50,15 @@ app.use(async(ctx, next) => {
 })
 
 
-const corsOptions = {
-  origin: 'http://localhost:3000',
-}
-
-app.use(cors(corsOptions))
-
-
 app.use(bodyParser({
   strict: true,
 }));
+
+const corsOptions = {
+  origin: 'http://localhost:3000',
+}
+app.use(cors(corsOptions))
+
 app.use(routers);
 
 /**

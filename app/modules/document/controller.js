@@ -37,9 +37,13 @@ const createDocument = async(ctx) => {
 
 
 const getDocumentInfo = async(ctx) => {
+  const { document_id } = ctx.request.query;
   // 400
-  const validationResult = documentValidator.validate(ctx.request.body, getDocumentInfoQuerySchema)
-  if (validationResult.errors.length) {
+  const query = {
+    document_id: Number(document_id),
+  }
+  const validationResult = documentValidator.validate(query, getDocumentInfoQuerySchema)
+  if (!validationResult.instance || validationResult.errors.length) {
     responseHelper.paramsFail(ctx, extractErrMsg(validationResult))
   }
 

@@ -1,8 +1,20 @@
-const { sectionsSchemaId, documentId, documentTokenId, uniqueSectionsSchemaId } = require('../document')
+const {
+  documentId,
+  documentTokenId,
+  documentValidator,
+  getPagesSchema,
+  getSectionsSchema,
+} = require('../document')
 
 /**
  * create document
  */
+const createPagesRef = '/document/createDocument/sections/pages'
+const createSectionsRef = '/document/createDocument/sections'
+const createPagesSchema = getPagesSchema({ id: createPagesRef, required: ['page_title', 'path', 'content'] })
+const createSectionsSchema = getSectionsSchema({ id: createSectionsRef, required: ['section_title', 'pages'], pagesRef: createPagesRef })
+documentValidator.addSchema(createPagesSchema, createPagesRef)
+documentValidator.addSchema(createSectionsSchema, createSectionsRef)
 
 const createDocumentQuerySchema = {
   type: 'object',
@@ -33,7 +45,7 @@ const createDocumentQuerySchema = {
       description: 'title of document',
     },
     sections: {
-      $ref: sectionsSchemaId,
+      $ref: createSectionsRef,
     },
   },
 }
@@ -58,19 +70,27 @@ const createDocumentResponseSchema = documentIdSchema
 const getDocumentTokenResponseSchema = {
   type: 'object',
   required: [
-    'document_token'
+    'document_token',
   ],
   properties: {
     document_token: {
-      $ref: documentTokenId
-    }
-  }
+      $ref: documentTokenId,
+    },
+  },
 }
 
 
 /**
  * get document info
  */
+const getPagesRef = '/document/getDocumentInfo/sections/pages'
+const getSectionsRef = '/document/getDocumentInfo/sections'
+const getDocumentPagesSchema = getPagesSchema({ id: getPagesRef, required: ['page_title', 'path', 'page_id'] })
+const getDocumentSectionsSchema = getSectionsSchema({ id: getSectionsRef, required: ['section_title', 'pages', 'section_id'], pagesRef: getPagesRef })
+documentValidator.addSchema(getDocumentPagesSchema, getPagesRef)
+documentValidator.addSchema(getDocumentSectionsSchema, getSectionsRef)
+
+
 const getDocumentInfoQuerySchema = documentIdSchema;
 const getDocumentInfoResponseSchema = {
   type: 'object',
@@ -102,7 +122,7 @@ const getDocumentInfoResponseSchema = {
       description: 'title of document',
     },
     sections: {
-      $ref: uniqueSectionsSchemaId,
+      $ref: getSectionsRef,
     },
   },
 }

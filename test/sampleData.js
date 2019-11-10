@@ -55,13 +55,11 @@ const sampleDocumentInfo = {
           page_title: 'User Section Description',
           is_root_path: true,
           path: '/user',
-          content: '<h1>This part is written by John.</h1>'
         },
         {
           page_id: 2,
           page_title: 'Login',
           path: '/user/login',
-          content: '<h1>Login Api</h1>',
         }
       ],
     },
@@ -74,13 +72,11 @@ const sampleDocumentInfo = {
           page_id: 1,
           page_title: 'Create Account',
           path: '/account/create',
-          content: '<h1>Create Account Api</h1>',
         },
         {
           page_id: 2,
           page_title: 'Get Account Info',
           path: '/account/info',
-          content: '<h1>Get Account Info Api</h1>',
         }
       ]
     }

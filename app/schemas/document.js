@@ -122,4 +122,5 @@ module.exports = {
   documentTokenId,
   getPagesSchema,
   getSectionsSchema,
+  pageId,
 }

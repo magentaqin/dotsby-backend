@@ -1,5 +1,4 @@
 const responseHelper = require('@app/utils/response')
-const { GlobalErr } = require('@app/utils/errorMessages')
 const { documentValidator } = require('@app/schemas/document')
 const {
   createDocumentQuerySchema,

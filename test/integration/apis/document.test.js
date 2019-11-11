@@ -1,5 +1,3 @@
-require('module-alias/register');
-
 const assert = require('assert')
 const { Validator } = require('jsonschema');
 const http = require('@test/request')

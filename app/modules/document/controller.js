@@ -23,7 +23,7 @@ const createDocument = async(ctx) => {
 
   // schema validation
   const validationResult = documentValidator.validate(ctx.request.body, createDocumentQuerySchema)
-  if (validationResult.errors.length) {
+  if (!validationResult.instance || validationResult.errors.length) {
     responseHelper.paramsFail(ctx, extractErrMsg(validationResult))
   }
 

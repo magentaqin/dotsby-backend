@@ -1,6 +1,7 @@
 const compose = require('koa-compose')
 
-const documentRouter = require('./modules/document/router')
+const documentRouter = require('@app/modules/document/router')
+const pageRouter = require('@app/modules/page/router')
 
 const combineRouters = (routers) => {
   const middleware = []
@@ -13,6 +14,7 @@ const combineRouters = (routers) => {
 
 const routers = combineRouters([
   documentRouter,
+  pageRouter,
 ])
 
 module.exports = routers;

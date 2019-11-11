@@ -7,7 +7,8 @@ const {
   pageIdSchema,
 } = require('../page');
 
-const getPageInfoRef = 'page/getInfo';
+const getPageInfoRef = 'page/getInfo/response';
+const getPageInfoQueryRef = 'page/getInfo/query'
 
 /**
  * get page info
@@ -19,11 +20,24 @@ const required = [
   'path',
   'content',
 ]
+const getPageInfoQuerySchema = {
+  id: getPageInfoQueryRef,
+  type: 'object',
+  required: ['id'],
+  properties: {
+    id: {
+      $ref: pageIdRef,
+    },
+  },
+}
 const getPageInfoSchema = getPagesSchema({ id: getPageInfoRef, required });
 
 pageValidator.addSchema(pageIdSchema, pageIdRef);
+pageValidator.addSchema(getPageInfoQueryRef, getPageInfoQuerySchema)
 pageValidator.addSchema(getPageInfoRef, getPageInfoSchema)
 
 module.exports = {
   pageValidator,
+  getPageInfoQuerySchema,
+  getPageInfoSchema,
 }

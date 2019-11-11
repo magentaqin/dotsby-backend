@@ -1,8 +1,8 @@
 const responseHelper = require('@app/utils/response')
-const { documentValidator } = require('@app/schemas/document')
 const {
   createDocumentQuerySchema,
   getDocumentInfoQuerySchema,
+  documentValidator,
 } = require('@app/schemas/apis/document')
 const { extractErrMsg } = require('@app/utils/extract')
 const { sampleDocumentInfo } = require('@test/sampleData')

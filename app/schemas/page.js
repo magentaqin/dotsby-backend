@@ -8,7 +8,7 @@ const pageIdSchema = {
 }
 
 
-const getPagesSchema = (config) => {
+const getPageSchema = (config) => {
   return {
     id: config.id,
     type: 'object',
@@ -46,7 +46,7 @@ const getPagesSchema = (config) => {
 }
 
 module.exports = {
-  getPagesSchema,
+  getPageSchema,
   pageIdRef,
   pageIdSchema,
 }

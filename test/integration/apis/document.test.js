@@ -3,11 +3,11 @@ const { Validator } = require('jsonschema');
 const http = require('@test/request')
 const router = require('@app/modules/document/router')
 const { sampleDocument } = require('@test/sampleData')
-const { documentValidator } = require('@app/schemas/document')
 const {
   createDocumentResponseSchema,
   getDocumentTokenResponseSchema,
   getDocumentInfoResponseSchema,
+  documentValidator,
 } = require('@app/schemas/apis/document')
 const { errorResponseSchema } = require('@app/schemas/httpResponse')
 const { GlobalErrorCodes } = require('@app/utils/errorMessages')

@@ -2,7 +2,7 @@ const { Validator } = require('jsonschema');
 
 const pageValidator = new Validator();
 const {
-  getPagesSchema,
+  getPageSchema,
   pageIdRef,
   pageIdSchema,
 } = require('../page');
@@ -30,7 +30,7 @@ const getPageInfoQuerySchema = {
     },
   },
 }
-const getPageInfoSchema = getPagesSchema({ id: getPageInfoRef, required });
+const getPageInfoSchema = getPageSchema({ id: getPageInfoRef, required });
 
 pageValidator.addSchema(pageIdSchema, pageIdRef);
 pageValidator.addSchema(getPageInfoQueryRef, getPageInfoQuerySchema)

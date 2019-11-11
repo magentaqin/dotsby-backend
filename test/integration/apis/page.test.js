@@ -22,6 +22,10 @@ describe('Test Page Apis', async() => {
       assert(resp.status === 200)
     })
     // 400
+    it('should return 400 status when id is not passed', async() => {
+      const resp = await http.get(getPageInfoUrl)
+      assert(resp.status === 400)
+    })
     // 401
     // 403
     // 404

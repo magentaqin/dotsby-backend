@@ -1,18 +1,35 @@
+const { Validator } = require('jsonschema');
+
+const documentValidator = new Validator();
+
 const {
-  documentId,
-  documentTokenId,
-  documentValidator,
+  documentIdRef,
+  documentTokenRef,
   getPagesSchema,
   getSectionsSchema,
+  sectionIdRef,
+  sectionIdSchema,
+  documentIdSchema,
+  documentTokenSchema,
 } = require('../document')
+const { pageIdRef, pageIdSchema, getPageSchema } = require('../page')
+
+documentValidator.addSchema(pageIdSchema, pageIdRef)
+documentValidator.addSchema(sectionIdSchema, sectionIdRef)
+documentValidator.addSchema(documentIdSchema, documentIdRef)
+documentValidator.addSchema(documentTokenSchema, documentTokenRef)
 
 /**
  * create document
  */
 const createPagesRef = '/document/createDocument/sections/pages'
 const createSectionsRef = '/document/createDocument/sections'
-const createPagesSchema = getPagesSchema({ id: createPagesRef, required: ['page_title', 'path', 'content'] })
+const createPageModelRef = '/document/createDocument/section/pages/page'
+
+const createPageModelSchema = getPageSchema({ id: createPageModelRef, required: ['page_title', 'path', 'content'] })
+const createPagesSchema = getPagesSchema({ id: createPagesRef, pageRef: createPageModelRef })
 const createSectionsSchema = getSectionsSchema({ id: createSectionsRef, required: ['section_title', 'pages'], pagesRef: createPagesRef })
+documentValidator.addSchema(createPageModelSchema, createPageModelRef)
 documentValidator.addSchema(createPagesSchema, createPagesRef)
 documentValidator.addSchema(createSectionsSchema, createSectionsRef)
 
@@ -26,7 +43,7 @@ const createDocumentQuerySchema = {
   ],
   properties: {
     document_token: {
-      $ref: documentTokenId,
+      $ref: documentTokenRef,
     },
     is_private: {
       type: 'boolean',
@@ -50,19 +67,17 @@ const createDocumentQuerySchema = {
   },
 }
 
-const documentIdSchema = {
+const createDocumentResponseSchema = {
   type: 'object',
   required: [
     'document_id',
   ],
   properties: {
     document_id: {
-      $ref: documentId,
+      $ref: documentIdRef,
     },
   },
 }
-
-const createDocumentResponseSchema = documentIdSchema
 
 /**
  * get document token
@@ -74,7 +89,7 @@ const getDocumentTokenResponseSchema = {
   ],
   properties: {
     document_token: {
-      $ref: documentTokenId,
+      $ref: documentTokenRef,
     },
   },
 }
@@ -85,13 +100,28 @@ const getDocumentTokenResponseSchema = {
  */
 const getPagesRef = '/document/getDocumentInfo/sections/pages'
 const getSectionsRef = '/document/getDocumentInfo/sections'
-const getDocumentPagesSchema = getPagesSchema({ id: getPagesRef, required: ['page_title', 'path', 'page_id'] })
+const getPageModelRef = '/document/getDocumentInfo/pages/page'
+
+const getPageModelSchema = getPageSchema({ id: getPageModelRef, required: ['page_title', 'path', 'page_id'] })
+const getDocumentPagesSchema = getPagesSchema({ id: getPagesRef })
 const getDocumentSectionsSchema = getSectionsSchema({ id: getSectionsRef, required: ['section_title', 'pages', 'section_id'], pagesRef: getPagesRef })
+
+documentValidator.addSchema(getPageModelSchema, getPageModelRef)
 documentValidator.addSchema(getDocumentPagesSchema, getPagesRef)
 documentValidator.addSchema(getDocumentSectionsSchema, getSectionsRef)
 
 
-const getDocumentInfoQuerySchema = documentIdSchema;
+const getDocumentInfoQuerySchema = {
+  type: 'object',
+  required: [
+    'document_id',
+  ],
+  properties: {
+    document_id: {
+      $ref: documentIdRef,
+    },
+  },
+};
 const getDocumentInfoResponseSchema = {
   type: 'object',
   required: [
@@ -103,7 +133,7 @@ const getDocumentInfoResponseSchema = {
   ],
   properties: {
     document_token: {
-      $ref: documentTokenId,
+      $ref: documentTokenRef,
     },
     is_private: {
       type: 'boolean',
@@ -133,4 +163,5 @@ module.exports = {
   getDocumentTokenResponseSchema,
   getDocumentInfoQuerySchema,
   getDocumentInfoResponseSchema,
+  documentValidator,
 }

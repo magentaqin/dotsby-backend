@@ -54,8 +54,9 @@ app.use(bodyParser({
   strict: true,
 }));
 
+// only allow in dev mode.
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: '*',
 }
 app.use(cors(corsOptions))
 

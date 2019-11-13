@@ -13,7 +13,8 @@ const getPageInfo = async(ctx) => {
     responseHelper.paramsFail(ctx, extractErrMsg(validationResult))
   }
 
-  const data = samplePageInfo
+  const index = Number(id) - 1;
+  const data = samplePageInfo[index];
   responseHelper.success(ctx, data, 200)
 }
 

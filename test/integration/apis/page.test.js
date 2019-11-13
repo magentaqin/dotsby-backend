@@ -16,7 +16,7 @@ describe('Test Page Apis', async() => {
   describe('Get Page Info', async() => {
     // 200
     it('should return page info when page id is provided', async() => {
-      const resp = await http.get(getPageInfoUrl, { id: 1234 })
+      const resp = await http.get(getPageInfoUrl, { id: 1 })
       const result = pageValidator.validate(resp.data.data, getPageInfoSchema)
       assert(result.errors.length === 0)
       assert(resp.status === 200)

@@ -26,9 +26,9 @@ const createPagesRef = '/document/createDocument/sections/pages'
 const createSectionsRef = '/document/createDocument/sections'
 const createPageModelRef = '/document/createDocument/section/pages/page'
 
-const createPageModelSchema = getPageSchema({ id: createPageModelRef, required: ['page_title', 'path', 'content'] })
+const createPageModelSchema = getPageSchema({ id: createPageModelRef, required: ['page_title', 'path'] })
 const createPagesSchema = getPagesSchema({ id: createPagesRef, pageRef: createPageModelRef })
-const createSectionsSchema = getSectionsSchema({ id: createSectionsRef, required: ['section_title', 'pages'], pagesRef: createPagesRef })
+const createSectionsSchema = getSectionsSchema({ id: createSectionsRef, required: ['section_title'], pagesRef: createPagesRef })
 documentValidator.addSchema(createPageModelSchema, createPageModelRef)
 documentValidator.addSchema(createPagesSchema, createPagesRef)
 documentValidator.addSchema(createSectionsSchema, createSectionsRef)

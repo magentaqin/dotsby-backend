@@ -66,7 +66,7 @@ const sampleDocumentInfo = {
     {
       section_title: 'Account Section',
       path: '/account',
-      section_id: 3,
+      section_id: 2,
       pages: [
         {
           page_id: 3,
@@ -83,13 +83,61 @@ const sampleDocumentInfo = {
   ],
 }
 
+const sampleApiContent = {
+  title: 'Get Document Token',
+  request_url: '/document/token',
+  method: 'get',
+  request_headers: [
+    {
+      name: 'Authorization',
+      displayName: 'Authorization',
+      type: 'string',
+      required: true,
+      description: 'Token fetching through Login Api',
+      key: 'Authorization',
+    },
+  ],
+  query_params: [],
+  body: [],
+  responses: [
+    {
+      key: '200',
+      status: '200',
+      headers: [],
+      data: [
+        {
+          name: 'application/json',
+          displayName: 'application/json',
+          type: '{\n'
+            + '  "type": "object",\n'
+            + '  "title": "Get Document Token",\n'
+            + '  "required": [\n'
+            + '    "document_token"\n'
+            + '  ],\n'
+            + '  "properties": {\n'
+            + '    "document_token": {\n'
+            + '      "type": "number",\n'
+            + '      "minimum": 1,\n'
+            + '      "description": "auto increment document id"\n'
+            + '    }\n'
+            + '  }\n'
+            + '}\n',
+          required: true,
+          key: 'application/json',
+        },
+      ],
+    },
+  ],
+}
+
 const samplePageInfo = [
   {
     page_id: 1,
     page_title: 'User Section Description',
     is_root_path: true,
     path: '/user',
-    content: '<h1>This part is written by John.</h1>',
+    // content: '<h1>This part is written by John.</h1>',
+    apiContent: sampleApiContent,
   },
   {
     page_id: 2,

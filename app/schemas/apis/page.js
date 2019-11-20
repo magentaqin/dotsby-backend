@@ -18,7 +18,6 @@ const required = [
   'page_title',
   'is_root_path',
   'path',
-  'content',
 ]
 const getPageInfoQuerySchema = {
   id: getPageInfoQueryRef,

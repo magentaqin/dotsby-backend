@@ -108,21 +108,30 @@ const sampleApiContent = {
         {
           name: 'application/json',
           displayName: 'application/json',
-          type: '{\n'
-            + '  "type": "object",\n'
-            + '  "title": "Get Document Token",\n'
-            + '  "required": [\n'
-            + '    "document_token"\n'
-            + '  ],\n'
-            + '  "properties": {\n'
-            + '    "document_token": {\n'
-            + '      "type": "number",\n'
-            + '      "minimum": 1,\n'
-            + '      "description": "auto increment document id"\n'
-            + '    }\n'
-            + '  }\n'
-            + '}\n',
+          type: 'object',
           required: true,
+          properties: [
+            {
+              name: 'data',
+              displayName: 'data',
+              type: '{\n'
+                + '  "type": "object",\n'
+                + '  "title": "Get Document Token",\n'
+                + '  "required": [\n'
+                + '    "document_token"\n'
+                + '  ],\n'
+                + '  "properties": {\n'
+                + '    "document_token": {\n'
+                + '      "type": "number",\n'
+                + '      "minimum": 1,\n'
+                + '      "description": "auto increment document id"\n'
+                + '    }\n'
+                + '  }\n'
+                + '}\n',
+              required: true,
+              key: 'data',
+            },
+          ],
           key: 'application/json',
         },
       ],

@@ -136,6 +136,20 @@ const sampleApiContent = {
         },
       ],
     },
+    {
+      key: '401',
+      status: '401',
+      headers: [],
+      data: [
+        {
+          name: 'application/json',
+          displayName: 'application/json',
+          type: 'ResponseError',
+          required: true,
+          key: 'application/json',
+        },
+      ],
+    },
   ],
 }
 

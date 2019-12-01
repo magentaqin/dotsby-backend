@@ -134,38 +134,6 @@ const sampleApiContent = {
           ],
           key: 'application/json',
         },
-        {
-          name: 'application/json',
-          displayName: 'application/json',
-          type: 'object',
-          required: true,
-          key: 'application/json2',
-          properties: [
-            {
-              name: 'data',
-              displayName: 'data',
-              type: 'object',
-              required: true,
-              properties: [
-                {
-                  name: 'code',
-                  displayName: 'code',
-                  type: 'string',
-                  required: true,
-                  key: 'code',
-                },
-                {
-                  name: 'message',
-                  displayName: 'message',
-                  type: 'string',
-                  required: true,
-                  key: 'message',
-                },
-              ],
-              key: 'data',
-            },
-          ],
-        },
       ],
     },
     {

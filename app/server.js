@@ -6,6 +6,7 @@ const cors = require('@koa/cors');
 const Logger = require('./utils/logger')
 const datetimeHelper = require('./utils/datetimehelper')
 const routers = require('./routers')
+const dbConnection = require('@app/db/init');
 
 /**
  * Logger
@@ -49,19 +50,6 @@ app.use(async(ctx, next) => {
   debugLogger(ctx, ms)
 })
 
-
-app.use(bodyParser({
-  strict: true,
-}));
-
-// only allow in dev mode.
-const corsOptions = {
-  origin: '*',
-}
-app.use(cors(corsOptions))
-
-app.use(routers);
-
 /**
  * Handle error
  */
@@ -73,6 +61,26 @@ const startServer = async() => {
   server = app.listen(config.port)
   if (server.listening) {
     Logger.info(`Server started at ${config.localhost}:${config.port}`)
+    dbConnection.connect((err) => {
+      if (err) {
+        return Logger.error('DB connection error: ', err.message);
+      }
+
+      Logger.info('Successfully connected to db.');
+
+      app.use(bodyParser({
+        strict: true,
+      }));
+
+      // only allow in dev mode.
+      const corsOptions = {
+        origin: '*',
+      }
+
+      app.use(cors(corsOptions))
+
+      app.use(routers);
+    })
   }
   server.on('close', () => Logger.info('Server stopped.'))
 }

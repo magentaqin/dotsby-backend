@@ -1,0 +1,3 @@
+[submodule "dotsby-schema"]
+	path = dotsby-schema
+	url = https://github.com/magentaqin/dotsby-schema.git

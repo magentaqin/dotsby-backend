@@ -3,10 +3,10 @@ const bodyParser = require('koa-bodyparser')
 const config = require('config')
 const cors = require('@koa/cors');
 
+const dbConnection = require('@app/db/init');
 const Logger = require('./utils/logger')
 const datetimeHelper = require('./utils/datetimehelper')
 const routers = require('./routers')
-const dbConnection = require('@app/db/init');
 
 /**
  * Logger

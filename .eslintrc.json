@@ -50,7 +50,8 @@
     "import/resolver": {
       "alias": [
         ["@app", "./app"],
-        ["@test", "./test"]
+        ["@test", "./test"],
+        ["@schema", "./dotsby-schema"]
       ]
     }
   }

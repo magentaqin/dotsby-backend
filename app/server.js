@@ -63,10 +63,10 @@ const startServer = async() => {
     Logger.info(`Server started at ${config.localhost}:${config.port}`)
     dbConnection.connect((err) => {
       if (err) {
-        return Logger.error('DB connection error: ', err.message);
+        Logger.error('DB connection error: ', err.message);
+      } else {
+        Logger.info('Successfully connected to db.');
       }
-
-      Logger.info('Successfully connected to db.');
 
       app.use(bodyParser({
         strict: true,

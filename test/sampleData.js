@@ -1,82 +1,94 @@
 const sampleDocument = {
-  document_token: '1qazxsw2',
+  document_id: '1qazxsw2',
   version: 0.1,
-  doc_title: 'Sample Doc',
+  title: 'Sample Doc',
   is_private: false,
   sections: [
     {
-      section_title: 'User Section',
+      title: 'User Section',
       pages: [
         {
-          page_title: 'User Section Description',
+          title: 'User Section Description',
           is_root_path: true,
           path: '/user',
           content: '<h1>This part is written by John.</h1>',
         },
         {
-          page_title: 'Login',
+          title: 'Login',
           path: '/user/login',
           content: '<h1>Login Api</h1>',
         },
       ],
     },
     {
-      section_title: 'Account Section',
+      title: 'Account Section',
       path: '/account',
       pages: [
         {
-          page_title: 'Create Account',
+          title: 'Create Account',
           path: '/account/create',
           content: '<h1>Create Account Api</h1>',
         },
         {
-          page_title: 'Get Account Info',
+          title: 'Get Account Info',
           path: '/account/info',
           content: '<h1>Get Account Info Api</h1>',
         },
       ],
     },
   ],
+};
+
+const time = {
+  created_at: '2013-02-04T18:35:24+00:00',
+  updated_at: '2013-02-04T18:35:24+00:00',
 }
 
 const sampleDocumentInfo = {
-  document_id: 1,
-  document_token: '1qazxsw2',
+  id: 1,
+  document_id: '1qazxsw2',
   version: 0.1,
-  doc_title: 'Sample Doc',
+  title: 'Sample Doc',
   is_private: false,
+  ...time,
   sections: [
     {
-      section_id: 1,
-      section_title: 'User Section',
+      id: 1,
+      title: 'User Section',
       pages: [
         {
-          page_id: 1,
-          page_title: 'User Section Description',
+          id: 1,
+          title: 'User Section Description',
           is_root_path: true,
           path: '/user',
+          ...time,
         },
         {
-          page_id: 2,
-          page_title: 'Login',
+          id: 2,
+          title: 'Login',
           path: '/user/login',
+          ...time,
         },
       ],
+      ...time,
     },
     {
-      section_title: 'Account Section',
+      title: 'Account Section',
       path: '/account',
-      section_id: 2,
+      id: 2,
+      ...time,
       pages: [
         {
-          page_id: 3,
-          page_title: 'Create Account',
+          id: 3,
+          title: 'Create Account',
           path: '/account/create',
+          ...time,
         },
         {
-          page_id: 4,
-          page_title: 'Get Account Info',
+          id: 4,
+          title: 'Get Account Info',
           path: '/account/info',
+          ...time,
         },
       ],
     },
@@ -213,33 +225,37 @@ const sampleApiContent = {
 
 const samplePageInfo = [
   {
-    page_id: 1,
-    page_title: 'User Section Description',
+    id: 1,
+    title: 'User Section Description',
     is_root_path: true,
     path: '/user',
     // content: '<h1>This part is written by John.</h1>',
     apiContent: sampleApiContent,
+    ...time,
   },
   {
-    page_id: 2,
+    id: 2,
     is_root_path: false,
-    page_title: 'Login',
+    title: 'Login',
     path: '/user/login',
     content: '<h1>Login Api</h1>',
+    ...time,
   },
   {
-    page_id: 3,
+    id: 3,
     is_root_path: false,
-    page_title: 'Create Account',
+    title: 'Create Account',
     path: '/account/create',
     content: '<h1>Create Account Api</h1>',
+    ...time,
   },
   {
-    page_id: 4,
-    page_title: 'Get Account Info',
+    id: 4,
+    title: 'Get Account Info',
     is_root_path: false,
     path: '/account/info',
     content: '<h1>Get Account Info Api</h1>',
+    ...time,
   },
 ]
 

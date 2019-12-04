@@ -4,12 +4,12 @@ const http = require('@test/request')
 const router = require('@app/modules/document/router')
 const { sampleDocument } = require('@test/sampleData')
 const {
-  createDocumentResponseSchema,
   getDocumentTokenResponseSchema,
-  getDocumentInfoResponseSchema,
   documentValidator,
 } = require('@app/schemas/apis/document')
-const { errorResponseSchema } = require('@app/schemas/httpResponse')
+const createDocumentResponseSchema = require('@schema/src/apis/document_create_response')
+const getDocumentInfoResponseSchema = require('@schema/src/apis/document_info_response')
+const errorResponseSchema = require('@schema/src/response/type_response_error')
 const { GlobalErrorCodes } = require('@app/utils/errorMessages')
 
 const validator = new Validator()
@@ -22,30 +22,30 @@ describe('Test Document APIS', async () => {
   /**
    * Get Document Token Api
    */
-  describe('Get Document Token', async() => {
-    it('should return document token and 200 when authorized', async() => {
-      const resp = await http.get(getDocTokenUrl)
-      const result = documentValidator.validate(resp.data.data, getDocumentTokenResponseSchema)
-      assert(result.errors.length === 0)
-      assert(resp.status === 200)
-    })
+  // describe('Get Document Token', async() => {
+  //   it('should return document token and 200 when authorized', async() => {
+  //     const resp = await http.get(getDocTokenUrl)
+  //     const result = documentValidator.validate(resp.data.data, getDocumentTokenResponseSchema)
+  //     assert(result.errors.length === 0)
+  //     assert(resp.status === 200)
+  //   })
 
-    // 401. TODO.
-    // 403. TODO.
-  })
+  //   // 401. TODO.
+  //   // 403. TODO.
+  // })
 
   /**
    * Create Document Api
    */
   describe('Create Document', async () => {
     // 200 OK
-    it('should return document id and 200 status when document is created successfully', async() => {
+    it('should return id and version and 200 status when document is created successfully', async() => {
       const resp = await http.post(createDocUrl, sampleDocument)
 
-      const validationResult = documentValidator
+      const validationResult = validator
         .validate(
           resp.data.data,
-          createDocumentResponseSchema,
+          createDocumentResponseSchema.schema,
         );
       assert(validationResult.errors.length === 0)
       assert(resp.status === 200)
@@ -55,7 +55,7 @@ describe('Test Document APIS', async () => {
     it('should return error code INVALID_PARAMETER and 400 status when query schema validation failed', async() => {
       const resp = await http.post(createDocUrl, {})
       assert(resp.status === 400)
-      assert(validator.validate(resp.data, errorResponseSchema).errors.length === 0)
+      assert(validator.validate(resp.data, errorResponseSchema.schema).errors.length === 0)
       assert(resp.data.code === GlobalErrorCodes.INVALID_PARAMETERS)
     })
 
@@ -71,8 +71,8 @@ describe('Test Document APIS', async () => {
   describe('Get Document Info', async() => {
     // 200 OK
     it('should return document info and 200 status when authorized', async() => {
-      const resp = await http.get(getDocInfoUrl, { document_id: 1 })
-      const result = documentValidator.validate(resp.data.data, getDocumentInfoResponseSchema)
+      const resp = await http.get(getDocInfoUrl, { document_id: '1qazxsw2', version: 0.1 })
+      const result = validator.validate(resp.data.data, getDocumentInfoResponseSchema.schema)
       assert(result.errors.length === 0)
       assert(resp.status === 200)
     })
@@ -83,7 +83,7 @@ describe('Test Document APIS', async () => {
     it('should return 400 status when document id is not passed', async() => {
       const resp = await http.get(getDocInfoUrl, { document_id: null })
       assert(resp.status === 400)
-      assert(validator.validate(resp.data, errorResponseSchema).errors.length === 0)
+      assert(validator.validate(resp.data, errorResponseSchema.schema).errors.length === 0)
       assert(resp.data.code === GlobalErrorCodes.INVALID_PARAMETERS)
     })
   })

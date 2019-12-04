@@ -26,7 +26,8 @@
   ],
   "_moduleAliases": {
     "@app": "./app",
-    "@test": "./test"
+    "@test": "./test",
+    "@schema": "./dotsby-schema"
   },
   "devDependencies": {
     "eslint": "^6.5.1",

@@ -1,11 +1,11 @@
 const responseHelper = require('@app/utils/response')
-const {
-  createDocumentQuerySchema,
-  getDocumentInfoQuerySchema,
-  documentValidator,
-} = require('@app/schemas/apis/document')
+const { Validator } = require('jsonschema')
+const createDocumentQuerySchema = require('@schema/src/apis/document_create_params');
+const getDocumentInfoQuerySchema = require('@schema/src/apis/document_info_params');
 const { extractErrMsg } = require('@app/utils/extract')
 const { sampleDocumentInfo } = require('@test/sampleData')
+
+const validator = new Validator()
 
 // AUTH REQUIRED
 const getDocumentToken = async(ctx) => {
@@ -14,21 +14,21 @@ const getDocumentToken = async(ctx) => {
   const data = {
     document_token: '1qazxsw2',
   }
-  responseHelper.success(ctx, data)
+  responseHelper.success(ctx, data);
 }
 
 const createDocument = async(ctx) => {
   // validate if document_token already existed. IF NOT EXIST, THROW 401. TODO.
   // validate if verion already existed. IF existed, THROW 403. document already existsed. TODO.
-
   // schema validation
-  const validationResult = documentValidator.validate(ctx.request.body, createDocumentQuerySchema)
+  const validationResult = validator.validate(ctx.request.body, createDocumentQuerySchema.schema)
   if (!validationResult.instance || validationResult.errors.length) {
     responseHelper.paramsFail(ctx, extractErrMsg(validationResult))
   }
 
   const data = {
-    document_id: 1,
+    document_id: '1qazxsw2',
+    version: 0.1,
   }
 
   responseHelper.success(ctx, data, 200)
@@ -36,12 +36,13 @@ const createDocument = async(ctx) => {
 
 
 const getDocumentInfo = async(ctx) => {
-  const { document_id } = ctx.request.query;
+  const { document_id, version } = ctx.request.query;
   // 400
   const query = {
-    document_id: Number(document_id),
+    document_id,
+    version: Number(version),
   }
-  const validationResult = documentValidator.validate(query, getDocumentInfoQuerySchema)
+  const validationResult = validator.validate(query, getDocumentInfoQuerySchema.schema)
   if (!validationResult.instance || validationResult.errors.length) {
     responseHelper.paramsFail(ctx, extractErrMsg(validationResult))
   }

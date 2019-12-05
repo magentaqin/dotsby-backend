@@ -3,18 +3,15 @@ const { Validator } = require('jsonschema');
 const http = require('@test/request')
 const router = require('@app/modules/document/router')
 const { sampleDocument } = require('@test/sampleData')
-const {
-  getDocumentTokenResponseSchema,
-  documentValidator,
-} = require('@app/schemas/apis/document')
 const createDocumentResponseSchema = require('@schema/src/apis/document_create_response')
 const getDocumentInfoResponseSchema = require('@schema/src/apis/document_info_response')
+const generateNewDocumentIdSchema = require('@schema/src/apis/document_new_id_response')
 const errorResponseSchema = require('@schema/src/response/type_response_error')
 const { GlobalErrorCodes } = require('@app/utils/errorMessages')
 
 const validator = new Validator()
 
-const getDocTokenUrl = router.url('getDocumentToken')
+const generateNewDocumentIdUrl = router.url('generateNewDocumentId')
 const createDocUrl = router.url('createDocument')
 const getDocInfoUrl = router.url('getDocumentInfo')
 
@@ -22,17 +19,17 @@ describe('Test Document APIS', async () => {
   /**
    * Get Document Token Api
    */
-  // describe('Get Document Token', async() => {
-  //   it('should return document token and 200 when authorized', async() => {
-  //     const resp = await http.get(getDocTokenUrl)
-  //     const result = documentValidator.validate(resp.data.data, getDocumentTokenResponseSchema)
-  //     assert(result.errors.length === 0)
-  //     assert(resp.status === 200)
-  //   })
+  describe('Generate new document id', async() => {
+    it('should return document_id and 200 when authorized', async() => {
+      const resp = await http.get(generateNewDocumentIdUrl)
+      const result = validator.validate(resp.data.data, generateNewDocumentIdSchema.schema)
+      assert(result.errors.length === 0)
+      assert(resp.status === 200)
+    })
 
-  //   // 401. TODO.
-  //   // 403. TODO.
-  // })
+    // 401. TODO.
+    // 403. TODO.
+  })
 
   /**
    * Create Document Api

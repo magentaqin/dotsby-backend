@@ -5,7 +5,7 @@ const controller = require('./controller')
 const router = new Router({ prefix: `${config.apiPrefix}` })
 
 router
-  .get('getDocumentToken', '/document/token', controller.getDocumentToken)
+  .get('generateNewDocumentId', '/document/new-id', controller.generateNewDocumentId)
   .post('createDocument', '/document/create', controller.createDocument)
   .get('getDocumentInfo', '/document', controller.getDocumentInfo)
 

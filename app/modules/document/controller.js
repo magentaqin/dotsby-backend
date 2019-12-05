@@ -8,11 +8,11 @@ const { sampleDocumentInfo } = require('@test/sampleData')
 const validator = new Validator()
 
 // AUTH REQUIRED
-const getDocumentToken = async(ctx) => {
+const generateNewDocumentId = async(ctx) => {
   // HANDLE 401.TODO
   // HANDLE 403. TODO
   const data = {
-    document_token: '1qazxsw2',
+    document_id: '1qazxsw2',
   }
   responseHelper.success(ctx, data);
 }
@@ -56,7 +56,7 @@ const getDocumentInfo = async(ctx) => {
 }
 
 module.exports = {
-  getDocumentToken,
+  generateNewDocumentId,
   createDocument,
   getDocumentInfo,
 }

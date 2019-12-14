@@ -8,6 +8,6 @@ const userModel = `
   last_login_at datetime not null
 `;
 
-const createUserTable = `create table if not exists user(${userModel})`;
+const createUserTable = `create table if not exists users(${userModel})`;
 
 module.exports = createUserTable;

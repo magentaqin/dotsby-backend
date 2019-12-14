@@ -73,9 +73,7 @@ const startServer = async() => {
       dbConnection.query(createUserTable, (err) => {
         if (err) {
           console.log('fail to create user table', err.message)
-          return;
         }
-        console.log('successfully created user table')
       })
 
 

@@ -4,6 +4,8 @@ const config = require('config')
 const cors = require('@koa/cors');
 
 const dbConnection = require('@app/db/init');
+const createUserTable = require('@app/db/user');
+
 const Logger = require('./utils/logger')
 const datetimeHelper = require('./utils/datetimehelper')
 const routers = require('./routers')
@@ -64,9 +66,18 @@ const startServer = async() => {
     dbConnection.connect((err) => {
       if (err) {
         Logger.error('DB connection error: ', err.message);
-      } else {
-        Logger.info('Successfully connected to db.');
+        return;
       }
+
+      Logger.info('Successfully connected to db.');
+      dbConnection.query(createUserTable, (err) => {
+        if (err) {
+          console.log('fail to create user table', err.message)
+          return;
+        }
+        console.log('successfully created user table')
+      })
+
 
       app.use(bodyParser({
         strict: true,
@@ -82,7 +93,15 @@ const startServer = async() => {
       app.use(routers);
     })
   }
-  server.on('close', () => Logger.info('Server stopped.'))
+  server.on('close', () => {
+    dbConnection.end((err) => {
+      if (err) {
+        Logger.error('DB close err: ', err.message)
+        return;
+      }
+      Logger.info('Server Stopped SUCCESSFULLY.')
+    })
+  })
 }
 
 const stopServer = async() => {

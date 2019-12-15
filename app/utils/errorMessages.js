@@ -7,6 +7,8 @@ const GlobalErrorCodes = {
 
 const UserErrorCodes = {
   EMAIL_ALREADY_EXISTED: 'EMAIL_ALREADY_EXISTED',
+  EMAIL_NOT_EXIST: 'EMAIL_NOT_EXIST',
+  EMAIL_PASSWORD_NOT_MATCH: 'EMAIL_PASSWORD_NOT_MATCH',
 }
 
 const GlobalErr = {
@@ -17,6 +19,8 @@ const GlobalErr = {
 
 const UserErr = {
   [UserErrorCodes.EMAIL_ALREADY_EXISTED]: 'Email already existed.Please try another email.',
+  [UserErrorCodes.EMAIL_NOT_EXIST]: 'Email does not exist.',
+  [UserErrorCodes.EMAIL_PASSWORD_NOT_MATCH]: 'Email does not match with password.',
 }
 
 

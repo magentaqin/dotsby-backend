@@ -6,6 +6,7 @@ const config = require('config')
 const responseHelper = require('@app/utils/response')
 const { extractErrMsg } = require('@app/utils/extract')
 const signUpQuerySchema = require('@schema/src/apis/user_signup_params')
+const loginQuerySchema = require('@schema/src/apis/user_login_params')
 const { GlobalErrorCodes, GlobalErr, UserErrorCodes, UserErr } = require('@app/utils/errorMessages');
 const dbConnection = require('@app/db/init');
 const Logger = require('@app/utils/logger');
@@ -14,8 +15,9 @@ const Token = require('@app/utils/token')
 
 const validator = new Validator()
 const serverErrMsg = GlobalErr[GlobalErrorCodes.SERVER_ERROR]
-const { EMAIL_ALREADY_EXISTED } = UserErrorCodes
+const { EMAIL_ALREADY_EXISTED, EMAIL_NOT_EXIST, EMAIL_PASSWORD_NOT_MATCH } = UserErrorCodes
 const { jwt_secret_key } = config;
+const saltRounds = 10;
 
 const generateToken = (userId, email) => {
   const token = new Token(jwt_secret_key).sign({ userId, email }, '30d');
@@ -55,12 +57,40 @@ const createUser = (data) => {
   })
 }
 
-const queryUser = (id) => {
+const queryUserById = (id) => {
   const sql = `SELECT * FROM users WHERE id = ${mysql.escape(id)}` ;
   return new Promise((resolve, reject) => {
     dbConnection.query(sql, (error, results) => {
       if (error) {
-        Logger.error('check email err', error)
+        Logger.error('query user by id error', error)
+        reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+      }
+      resolve({ data: results })
+    })
+  })
+}
+
+const queryUserByEmail = (email) => {
+  const sql = `SELECT * FROM users WHERE email = ${mysql.escape(email)}` ;
+  return new Promise((resolve, reject) => {
+    dbConnection.query(sql, (error, results) => {
+      if (error) {
+        Logger.error('query user by email error', error)
+        reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+      }
+      resolve({ data: results })
+    })
+  })
+}
+
+const updateLastLoginTime = (id) => {
+  const now = formatUTCDatetime();
+  const sql = `UPDATE users SET last_login_at = ? WHERE id = ?`;
+  const user = [now, id];
+  return new Promise((resolve, reject) => {
+    dbConnection.query(sql, user, (error, results) => {
+      if (error) {
+        Logger.error('update last login time err: ', error, id)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
       }
       resolve({ data: results })
@@ -88,7 +118,6 @@ const signUp = async(ctx) => {
   });
 
   // hash password
-  const saltRounds = 10;
   const password_hash = await bcrypt.hash(password, saltRounds).catch(err => {
     responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
   })
@@ -101,7 +130,7 @@ const signUp = async(ctx) => {
   })
 
   // get newly created user
-  const queryResp = await queryUser(insertResp.data.insertId).catch(err => {
+  const queryResp = await queryUserById(insertResp.data.insertId).catch(err => {
     if (err.message === GlobalErrorCodes.SERVER_ERROR) {
       responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
     }
@@ -123,6 +152,60 @@ const signUp = async(ctx) => {
   responseHelper.success(ctx, responseData, 200)
 }
 
+const login = async(ctx) => {
+  const { email, password } = ctx.request.body;
+
+  // validate request body
+  const validationResult = validator.validate(ctx.request.body, loginQuerySchema.schema)
+  if (!validationResult.instance || validationResult.errors.length) {
+    responseHelper.paramsFail(ctx, extractErrMsg(validationResult))
+  }
+
+  // check if user existed
+  const userQuery = await queryUserByEmail(email).catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
+  if (userQuery && !userQuery.data.length) {
+    responseHelper.fail(ctx, EMAIL_NOT_EXIST, UserErr[EMAIL_NOT_EXIST], 404);
+  }
+
+  // check if password is correct
+  const { password_hash, id} = userQuery.data[0];
+  const isMatch = await bcrypt.compare(password, password_hash);
+  if (!isMatch) {
+    responseHelper.fail(ctx, EMAIL_PASSWORD_NOT_MATCH, UserErr[EMAIL_PASSWORD_NOT_MATCH], 401);
+  }
+
+  // update last_login_at
+  await updateLastLoginTime(id).catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
+  const updatedUser = await queryUserById(id).catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
+
+  const {created_at, updated_at, last_login_at, status } = updatedUser.data[0];
+  // generate token
+  const token = generateToken(id, email);
+  const responseData = {
+    email,
+    token,
+    created_at: formatUTCDatetime(created_at),
+    updated_at: formatUTCDatetime(updated_at),
+    last_login_at: formatUTCDatetime(last_login_at),
+    status,
+  }
+
+  responseHelper.success(ctx, responseData, 200);
+}
+
 module.exports = {
   signUp,
+  login,
 }

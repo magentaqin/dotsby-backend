@@ -6,5 +6,6 @@ const router = new Router({ prefix: `${config.apiPrefix}` })
 
 router
   .post('signUp', '/user/signup', controller.signUp)
+  .post('login', '/user/login', controller.login)
 
 module.exports = router;

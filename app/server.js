@@ -9,6 +9,9 @@ const createUserTable = require('@app/db/user');
 const Logger = require('./utils/logger')
 const datetimeHelper = require('./utils/datetimehelper')
 const routers = require('./routers')
+const Token = require('@app/utils/token');
+
+const { jwt_secret_key } = config;
 
 /**
  * Logger
@@ -52,6 +55,23 @@ app.use(async(ctx, next) => {
   debugLogger(ctx, ms)
 })
 
+// verify token
+app.use(async(ctx, next) => {
+  const { headers } = ctx.request;
+  let isTokenValid = false;
+  if (headers.authorization) {
+    const token = headers.authorization;
+    const tokenInstance = new Token(jwt_secret_key)
+    isTokenValid = tokenInstance.verify(token)
+    if (isTokenValid) {
+      ctx.tokenPayload = tokenInstance.decoded;
+      ctx.token = token;
+    }
+  }
+  ctx.isTokenValid = isTokenValid;
+  await next();
+})
+
 /**
  * Handle error
  */
@@ -72,7 +92,8 @@ const startServer = async() => {
       Logger.info('Successfully connected to db.');
       dbConnection.query(createUserTable, (err) => {
         if (err) {
-          console.log('fail to create user table', err.message)
+          console.log('fail to create user table', err.message);
+          return;
         }
       })
 
@@ -85,7 +106,6 @@ const startServer = async() => {
       const corsOptions = {
         origin: '*',
       }
-
       app.use(cors(corsOptions))
 
       app.use(routers);
@@ -97,7 +117,7 @@ const startServer = async() => {
         Logger.error('DB close err: ', err.message)
         return;
       }
-      Logger.info('Server Stopped SUCCESSFULLY.')
+      Logger.info('Server Stopped Successfully.')
     })
   })
 }

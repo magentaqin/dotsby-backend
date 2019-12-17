@@ -16,14 +16,13 @@ class Token {
 
   verify(token) {
     let isVerified = false
-
-    jwt.verify(token, this.secretKey, (err, decoded) => {
-      if (!err) {
-        isVerified = true
-        this.decoded = decoded
-      }
-    })
-
+    try {
+      const decoded = jwt.verify(token, this.secretKey);
+      this.decoded = decoded;
+      isVerified = true;
+    } catch (err) {
+      isVerified = false;
+    }
     return isVerified
   }
 }

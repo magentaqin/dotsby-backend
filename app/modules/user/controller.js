@@ -15,6 +15,7 @@ const Token = require('@app/utils/token')
 
 const validator = new Validator()
 const serverErrMsg = GlobalErr[GlobalErrorCodes.SERVER_ERROR]
+const authFailMsg = GlobalErr[GlobalErrorCodes.AUTH_FAILED];
 const { EMAIL_ALREADY_EXISTED, EMAIL_NOT_EXIST, EMAIL_PASSWORD_NOT_MATCH } = UserErrorCodes
 const { jwt_secret_key } = config;
 const saltRounds = 10;
@@ -172,7 +173,7 @@ const login = async(ctx) => {
   }
 
   // check if password is correct
-  const { password_hash, id} = userQuery.data[0];
+  const { password_hash, id } = userQuery.data[0];
   const isMatch = await bcrypt.compare(password, password_hash);
   if (!isMatch) {
     responseHelper.fail(ctx, EMAIL_PASSWORD_NOT_MATCH, UserErr[EMAIL_PASSWORD_NOT_MATCH], 401);
@@ -190,7 +191,7 @@ const login = async(ctx) => {
     }
   })
 
-  const {created_at, updated_at, last_login_at, status } = updatedUser.data[0];
+  const { created_at, updated_at, last_login_at, status } = updatedUser.data[0];
   // generate token
   const token = generateToken(id, email);
   const responseData = {
@@ -205,7 +206,35 @@ const login = async(ctx) => {
   responseHelper.success(ctx, responseData, 200);
 }
 
+const getUserInfo = async(ctx) => {
+  if (!ctx.isTokenValid) {
+    responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
+  }
+  const { userId, email } = ctx.tokenPayload;
+  const queryResp = await queryUserById(userId).catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
+  const userInfo = queryResp.data[0];
+  if (userInfo.email !== email) {
+    responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
+  }
+
+  const { created_at, updated_at, last_login_at, status } = userInfo;
+  const responseData = {
+    email: userInfo.email,
+    token: ctx.token,
+    created_at: formatUTCDatetime(created_at, true),
+    updated_at: formatUTCDatetime(updated_at, true),
+    last_login_at: formatUTCDatetime(last_login_at, true),
+    status,
+  }
+  responseHelper.success(ctx, responseData, 200);
+}
+
 module.exports = {
   signUp,
   login,
+  getUserInfo,
 }

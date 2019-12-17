@@ -4,11 +4,13 @@ const http = require('@test/request')
 const router = require('@app/modules/user/router')
 const signupSchema = require('@schema/src/apis/user_signup_response')
 const loginSchema = require('@schema/src/apis/user_login_response')
+const userInfoSchema = require('@schema/src/apis/user_info_response')
 const errorResponseSchema = require('@schema/src/response/type_response_error')
 
 const validator = new Validator()
 const signupUrl = router.url('signUp');
-const loginUrl = router.url('login')
+const loginUrl = router.url('login');
+const getUserInfoUrl = router.url('getUserInfo');
 
 describe('Test User Apis', async() => {
   const randomName = Math.random().toString(32).substr(2)
@@ -16,6 +18,7 @@ describe('Test User Apis', async() => {
     email: `${randomName}@gmail.com`,
     password: 'test1234',
   }
+  let token = '';
   /**
    * Sign up
    */
@@ -50,6 +53,7 @@ describe('Test User Apis', async() => {
     // 200
     it('should return user info when login successfully', async() => {
       const resp = await http.post(loginUrl, userForm);
+      token = resp.data.data.token;
       const validationResult = validator.validate(resp.data.data, loginSchema.schema);
       assert(validationResult.errors.length === 0);
       assert(resp.status === 200);
@@ -86,6 +90,20 @@ describe('Test User Apis', async() => {
    */
   describe('Get User Info', async() => {
     // 200
+    it('should return user info when token is valid', async() => {
+      const resp = await http.get(getUserInfoUrl, {}, { Authorization: token });
+      const validationResult = validator.validate(resp.data.data, userInfoSchema.schema);
+      console.log('STATUS', resp.status, validationResult.errors)
+      assert(validationResult.errors.length === 0);
+      assert(resp.status === 200);
+    })
+
     // 401
+    it('should return 401 status when token is invalid', async() => {
+      const resp = await http.get(getUserInfoUrl);
+      const validationResult = validator.validate(resp.data.data, errorResponseSchema.schema);
+      assert(validationResult.errors.length === 0);
+      assert(resp.status === 401);
+    })
   })
 })

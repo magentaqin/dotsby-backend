@@ -144,9 +144,9 @@ const signUp = async(ctx) => {
   const responseData = {
     email: userInfo.email,
     token,
-    created_at: formatUTCDatetime(created_at),
-    updated_at: formatUTCDatetime(updated_at),
-    last_login_at: formatUTCDatetime(last_login_at),
+    created_at: formatUTCDatetime(created_at, true),
+    updated_at: formatUTCDatetime(updated_at, true),
+    last_login_at: formatUTCDatetime(last_login_at, true),
     status,
   }
   responseHelper.success(ctx, responseData, 200)
@@ -196,9 +196,9 @@ const login = async(ctx) => {
   const responseData = {
     email,
     token,
-    created_at: formatUTCDatetime(created_at),
-    updated_at: formatUTCDatetime(updated_at),
-    last_login_at: formatUTCDatetime(last_login_at),
+    created_at: formatUTCDatetime(created_at, true),
+    updated_at: formatUTCDatetime(updated_at, true),
+    last_login_at: formatUTCDatetime(last_login_at, true),
     status,
   }
 

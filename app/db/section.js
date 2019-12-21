@@ -4,7 +4,7 @@ const sectionModel = `
   created_at datetime not null,
   updated_at datetime not null,
   doc_id int,
-  constraint doc_id foreign key (doc_id) references docs(id) on update cascade on delete cascade
+  constraint fk_sections_docs_id foreign key (doc_id) references docs(id) on update cascade on delete cascade
 `;
 
 const createSectionTable = `create table if not exists sections(${sectionModel})`;

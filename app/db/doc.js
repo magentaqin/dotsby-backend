@@ -6,7 +6,7 @@ const docModel = `
   created_at datetime not null,
   updated_at datetime not null,
   user_id int,
-  constraint user_id foreign key (user_id) references users(id) on update cascade on delete cascade
+  constraint fk_docs_users_id foreign key (user_id) references users(id) on update cascade on delete cascade
 `;
 
 const createDocTable = `create table if not exists docs(${docModel})`;

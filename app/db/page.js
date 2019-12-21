@@ -4,6 +4,8 @@ const pageModel = `
   is_root_path boolean default false,
   path varchar(100) not null,
   content text not null,
+  api_content text not null,
+  request_url varchar(100),
   subtitles varchar(1000) not null,
   created_at datetime not null,
   updated_at datetime not null,

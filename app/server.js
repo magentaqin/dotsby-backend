@@ -5,6 +5,7 @@ const cors = require('@koa/cors');
 
 const dbConnection = require('@app/db/init');
 const createUserTable = require('@app/db/user');
+const createDocTable = require('@app/db/doc');
 
 const Logger = require('./utils/logger')
 const datetimeHelper = require('./utils/datetimehelper')
@@ -40,6 +41,10 @@ const debugLogger = (ctx, ms) => {
   ---------------------------------------------------------------`
 
   Logger.debug(logString)
+}
+
+const handleDatabaseErr = (tableName, err) => {
+  Logger.error(`Fail to create ${tableName} table`, err.message);
 }
 
 
@@ -90,16 +95,13 @@ const startServer = async() => {
       }
 
       Logger.info('Successfully connected to db.');
-      dbConnection.query(createUserTable, (err) => {
-        if (err) {
-          console.log('fail to create user table', err.message);
-        }
-      })
+
+      // create tables
+      dbConnection.query(createUserTable, (err) => err && handleDatabaseErr('users', err));
+      dbConnection.query(createDocTable, (err) => err && handleDatabaseErr('docs', err));
 
 
-      app.use(bodyParser({
-        strict: true,
-      }));
+      app.use(bodyParser({ strict: true }));
 
       // only allow in dev mode.
       const corsOptions = {

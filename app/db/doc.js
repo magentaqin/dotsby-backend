@@ -3,6 +3,7 @@ const docModel = `
   document_id varchar(100) not null,
   version varchar(20) not null,
   title varchar(50) not null,
+  is_private boolean default false,
   created_at datetime not null,
   updated_at datetime not null,
   user_id int,

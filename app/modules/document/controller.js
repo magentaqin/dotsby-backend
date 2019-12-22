@@ -1,20 +1,38 @@
-const responseHelper = require('@app/utils/response')
 const { Validator } = require('jsonschema')
+const hashHelper = require('object-hash');
+
 const createDocumentQuerySchema = require('@schema/src/apis/document_create_params');
 const getDocumentInfoQuerySchema = require('@schema/src/apis/document_info_params');
+const { GlobalErrorCodes, GlobalErr, UserErrorCodes, UserErr } = require('@app/utils/errorMessages');
 const { extractErrMsg } = require('@app/utils/extract')
 const { sampleDocumentInfo } = require('@test/sampleData')
+const { queryUserById } = require('@app/modules/user/query');
+const responseHelper = require('@app/utils/response')
 
-const validator = new Validator()
+const validator = new Validator();
+const serverErrMsg = GlobalErr[GlobalErrorCodes.SERVER_ERROR];
+const authFailMsg = GlobalErr[GlobalErrorCodes.AUTH_FAILED];
 
-// AUTH REQUIRED
+
 const generateNewDocumentId = async(ctx) => {
-  // HANDLE 401.TODO
-  // HANDLE 403. TODO
-  const data = {
-    document_id: '1qazxsw2',
+  if (!ctx.isTokenValid) {
+    responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
   }
-  responseHelper.success(ctx, data);
+  const { userId, email } = ctx.tokenPayload;
+  const queryResp = await queryUserById(userId).catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
+  const userInfo = queryResp.data[0];
+  if (userInfo.email !== email) {
+    responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
+  }
+
+  // hash document_id. document_id is used to identify the document.
+  const document_id = hashHelper({ email, document_created_at: Date.now() })
+
+  responseHelper.success(ctx, { document_id }, 200);
 }
 
 const createDocument = async(ctx) => {

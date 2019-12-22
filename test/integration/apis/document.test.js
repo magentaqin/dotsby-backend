@@ -2,47 +2,71 @@ const assert = require('assert')
 const { Validator } = require('jsonschema');
 const http = require('@test/request')
 const router = require('@app/modules/document/router')
+const userRouter = require('@app/modules/user/router')
 const { sampleDocument } = require('@test/sampleData')
-const createDocumentResponseSchema = require('@schema/src/apis/document_create_response')
+const publishDocumentResponseSchema = require('@schema/src/apis/document_publish_response')
 const getDocumentInfoResponseSchema = require('@schema/src/apis/document_info_response')
-const generateNewDocumentIdSchema = require('@schema/src/apis/document_new_id_response')
+const createDocumentSchema = require('@schema/src/apis/document_create_response')
 const errorResponseSchema = require('@schema/src/response/type_response_error')
 const { GlobalErrorCodes } = require('@app/utils/errorMessages')
 
 const validator = new Validator()
 
-const generateNewDocumentIdUrl = router.url('generateNewDocumentId')
-const createDocUrl = router.url('createDocument')
+const createDocumentUrl = router.url('createDocument')
+const publishDocumentUrl = router.url('publishDocument')
 const getDocInfoUrl = router.url('getDocumentInfo')
+const signupUrl = userRouter.url('signUp')
 
 describe('Test Document APIS', async () => {
+  const randomName = Math.random().toString(32).substr(2)
+  const userForm = {
+    email: `${randomName}@gmail.com`,
+    password: 'test1234',
+  }
+  const signupResp = await http.post(signupUrl, userForm);
+  const { token } = signupResp.data.data;
+  const authHeader = { Authorization: token };
   /**
-   * Get Document Token Api
+   * Create Document Api
    */
-  describe('Generate new document id', async() => {
+  describe('Create Document', async() => {
+    // 200
     it('should return document_id and 200 when authorized', async() => {
-      const resp = await http.get(generateNewDocumentIdUrl)
-      const result = validator.validate(resp.data.data, generateNewDocumentIdSchema.schema)
+      const resp = await http.post(createDocumentUrl, { title: 'Test Document', version: '0.1.0'}, authHeader)
+      const result = validator.validate(resp.data.data, createDocumentSchema.schema)
       assert(result.errors.length === 0)
       assert(resp.status === 200)
     })
 
-    // 401. TODO.
-    // 403. TODO.
+    // 400
+    it('should return error code INVALID_PARAMETER and 400 status when query schema validation failed', async() => {
+      const resp = await http.post(createDocumentUrl, {}, authHeader)
+      assert(resp.status === 400)
+      assert(validator.validate(resp.data, errorResponseSchema.schema).errors.length === 0)
+      assert(resp.data.code === GlobalErrorCodes.INVALID_PARAMETERS)
+    })
+
+    // 401
+    it('should return 401 status when authorized', async() => {
+      const resp = await http.post(createDocumentUrl)
+      const result = validator.validate(resp.data.data, errorResponseSchema.schema)
+      assert(result.errors.length === 0)
+      assert(resp.status === 401)
+    })
   })
 
   /**
-   * Create Document Api
+   * Publish Document Api
    */
-  describe('Create Document', async () => {
+  describe('Publish Document', async () => {
     // 200 OK
-    it('should return id and version and 200 status when document is created successfully', async() => {
-      const resp = await http.post(createDocUrl, sampleDocument)
+    it('should return id and version and 200 status when document is published successfully', async() => {
+      const resp = await http.post(publishDocumentUrl, sampleDocument)
 
       const validationResult = validator
         .validate(
           resp.data.data,
-          createDocumentResponseSchema.schema,
+          publishDocumentResponseSchema.schema,
         );
       assert(validationResult.errors.length === 0)
       assert(resp.status === 200)
@@ -50,7 +74,7 @@ describe('Test Document APIS', async () => {
 
     // 400
     it('should return error code INVALID_PARAMETER and 400 status when query schema validation failed', async() => {
-      const resp = await http.post(createDocUrl, {})
+      const resp = await http.post(publishDocumentUrl, {})
       assert(resp.status === 400)
       assert(validator.validate(resp.data, errorResponseSchema.schema).errors.length === 0)
       assert(resp.data.code === GlobalErrorCodes.INVALID_PARAMETERS)

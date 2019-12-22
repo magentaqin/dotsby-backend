@@ -93,7 +93,6 @@ describe('Test User Apis', async() => {
     it('should return user info when token is valid', async() => {
       const resp = await http.get(getUserInfoUrl, {}, { Authorization: token });
       const validationResult = validator.validate(resp.data.data, userInfoSchema.schema);
-      console.log('STATUS', resp.status, validationResult.errors)
       assert(validationResult.errors.length === 0);
       assert(resp.status === 200);
     })

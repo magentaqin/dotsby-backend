@@ -4,9 +4,10 @@ const docModel = `
   version varchar(20) not null,
   title varchar(50) not null,
   is_private boolean default false,
+  is_published boolean default false,
   created_at datetime not null,
   updated_at datetime not null,
-  user_id int,
+  user_id int not null,
   constraint fk_docs_users_id foreign key (user_id) references users(id) on update cascade on delete cascade
 `;
 

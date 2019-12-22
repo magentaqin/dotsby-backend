@@ -10,7 +10,7 @@ const pageModel = `
   subtitles varchar(1000) not null,
   created_at datetime not null,
   updated_at datetime not null,
-  section_id int,
+  section_id int not null,
   constraint fk_pages_sections_id foreign key (section_id) references sections(id) on update cascade on delete cascade
 `;
 

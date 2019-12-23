@@ -11,6 +11,10 @@ const UserErrorCodes = {
   EMAIL_PASSWORD_NOT_MATCH: 'EMAIL_PASSWORD_NOT_MATCH',
 }
 
+const DocErrorCodes = {
+  CREATE_BEFORE_PUBLISH: 'CREATE_BEFORE_PUBLISH',
+}
+
 const GlobalErr = {
   [GlobalErrorCodes.SERVER_ERROR]: 'Server is not available now',
   [GlobalErrorCodes.AUTH_FAILED]: 'User is not authenticated.',
@@ -23,10 +27,16 @@ const UserErr = {
   [UserErrorCodes.EMAIL_PASSWORD_NOT_MATCH]: 'Email does not match with password.',
 }
 
+const DocErr = {
+  [DocErrorCodes.CREATE_BEFORE_PUBLISH]: 'You have to create document in Dotsby Dashboard before publishing.',
+}
+
 
 module.exports = {
   GlobalErrorCodes,
   GlobalErr,
   UserErrorCodes,
   UserErr,
+  DocErrorCodes,
+  DocErr,
 }

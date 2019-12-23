@@ -2,7 +2,6 @@ const sampleDocument = {
   document_id: '1qazxsw2',
   version: 0.1,
   title: 'Sample Doc',
-  is_private: false,
   sections: [
     {
       title: 'User Section',

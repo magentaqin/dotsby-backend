@@ -32,7 +32,7 @@ describe('Test Document APIS', async () => {
   describe('Create Document', async() => {
     // 200
     it('should return document_id and 200 when authorized', async() => {
-      const resp = await http.post(createDocumentUrl, { title: 'Test Document', version: '0.1.0'}, authHeader)
+      const resp = await http.post(createDocumentUrl, { title: 'Test Document', version: '0.1.0' }, authHeader)
       const result = validator.validate(resp.data.data, createDocumentSchema.schema)
       assert(result.errors.length === 0)
       assert(resp.status === 200)

@@ -83,6 +83,23 @@ const publishDocument = async(ctx) => {
     responseHelper.fail(ctx, errorCode, DocErr[errorCode], 403);
   }
 
+  // check if version existed
+  const { version, title } = ctx.request.body;
+  let matchedDoc;
+  const isVersionExisted = docQueryResp.data.some(item => {
+    if (item.version === version) {
+      matchedDoc = item;
+      return true;
+    }
+    return false;
+  });
+  if (isVersionExisted) {
+    if (matchedDoc.title !== title) {
+      // update title. TODO.
+    }
+  } else {
+    // INSERT NEW DOCUMENT.
+  }
 
   const data = {
     document_id: '1qazxsw2',

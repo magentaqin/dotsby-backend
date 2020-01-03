@@ -6,6 +6,8 @@ const cors = require('@koa/cors');
 const dbConnection = require('@app/db/init');
 const createUserTable = require('@app/db/user');
 const createDocTable = require('@app/db/doc');
+const createSectionTable = require('@app/db/section');
+const createPageTable = require('@app/db/page');
 
 const Logger = require('./utils/logger')
 const datetimeHelper = require('./utils/datetimehelper')
@@ -99,6 +101,8 @@ const startServer = async() => {
       // create tables
       dbConnection.query(createUserTable, (err) => err && handleDatabaseErr('users', err));
       dbConnection.query(createDocTable, (err) => err && handleDatabaseErr('docs', err));
+      dbConnection.query(createSectionTable, (err) => err && handleDatabaseErr('sections', err));
+      dbConnection.query(createPageTable, (err) => err && handleDatabaseErr('pages', err));
 
 
       app.use(bodyParser({ strict: true }));

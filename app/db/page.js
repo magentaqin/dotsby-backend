@@ -10,8 +10,8 @@ const pageModel = `
   subtitles varchar(1000),
   created_at datetime not null,
   updated_at datetime not null,
-  section_id int not null,
-  constraint fk_pages_sections_id foreign key (section_id) references sections(section_id) on update cascade on delete cascade
+  section_id varchar(255) not null,
+  constraint fk_pages_sections_section_id foreign key (section_id) references sections(section_id) on update cascade on delete cascade
 `;
 
 const createPageTable = `create table if not exists pages(${pageModel})`;

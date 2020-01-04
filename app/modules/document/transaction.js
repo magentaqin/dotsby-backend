@@ -181,11 +181,11 @@ const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
   })
 }
 
-const updatePublish = () => {
+const publishExistingDocTransaction = () => {
 
 }
 
 module.exports = {
   publishNewDocTransaction,
-  updatePublish,
+  publishExistingDocTransaction,
 }

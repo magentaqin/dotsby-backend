@@ -10,6 +10,7 @@ const { sampleDocumentInfo } = require('@test/sampleData')
 const { queryUserById } = require('@app/modules/user/query');
 const responseHelper = require('@app/utils/response');
 const { createDocQuery, queryDocByDocId } = require('./query');
+const { publishNewDocTransaction } = require('./transaction');
 
 const validator = new Validator();
 const serverErrMsg = GlobalErr[GlobalErrorCodes.SERVER_ERROR];
@@ -84,7 +85,7 @@ const publishDocument = async(ctx) => {
   }
 
   // check if version existed
-  const { version, title } = ctx.request.body;
+  const { version, title, sections } = ctx.request.body;
   let matchedDoc;
   const isVersionExisted = docQueryResp.data.some(item => {
     if (item.version === version) {
@@ -93,12 +94,28 @@ const publishDocument = async(ctx) => {
     }
     return false;
   });
+
+  const docData = {
+    version,
+    title,
+    user_id: userId,
+    email,
+  }
   if (isVersionExisted) {
-    if (matchedDoc.title !== title) {
-      // update title. TODO.
+    docData.document_id = matchedDoc.document_id;
+    if (matchedDoc.is_published) {
+      // update already published version
+    } else {
+      // publish the first version of doc
+      const resp = await publishNewDocTransaction(docData, sections, false).catch(err => {
+        if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+          responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+        }
+      })
     }
   } else {
-    // INSERT NEW DOCUMENT.
+    const document_id = hashHelper({ email, document_created_at: Date.now() })
+    // publish new versions of doc
   }
 
   const data = {

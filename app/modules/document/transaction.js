@@ -1,4 +1,3 @@
-const mysql = require('mysql');
 const hashHelper = require('object-hash');
 const { formatUTCDatetime } = require('@app/utils/datetimehelper');
 const connection = require('@app/db/init');
@@ -90,7 +89,7 @@ const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
           })
         });
         if (resp) {
-          fkDocId = resp.data.results.insertId;
+          fkDocId = resp.data.insertId;
         }
       } else {
         const resp = await updateDocQuery(updatedDoc, document_id, user_id).catch(() => {
@@ -99,7 +98,7 @@ const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
           })
         })
         if (resp) {
-          fkDocId = resp.data.results.insertId;
+          fkDocId = resp.data.insertId;
         }
       }
 
@@ -181,11 +180,11 @@ const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
   })
 }
 
-const publishExistingDocTransaction = () => {
+const updatePublishedDocTransaction = () => {
 
 }
 
 module.exports = {
   publishNewDocTransaction,
-  publishExistingDocTransaction,
+  updatePublishedDocTransaction,
 }

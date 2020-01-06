@@ -108,6 +108,7 @@ const publishDocument = async(ctx) => {
     } else {
       // publish the first version of doc
       const resp = await publishNewDocTransaction(docData, sections, false).catch(err => {
+        console.log('ERROR CATCHED!')
         if (err.message === GlobalErrorCodes.SERVER_ERROR) {
           responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
         }

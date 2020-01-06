@@ -84,21 +84,21 @@ const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
        */
       if (isNewVersion) {
         const resp = await insertNewDocQuery(insertedDoc, document_id, user_id).catch(() => {
-          connection.rollback(() => {
-            reject(new Error(GlobalErrorCodes.SERVER_ERROR))
-          })
+          connection.rollback();
         });
         if (resp) {
           fkDocId = resp.data.insertId;
+        } else {
+          return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
         }
       } else {
         const resp = await updateDocQuery(updatedDoc, document_id, user_id).catch(() => {
-          connection.rollback(() => {
-            reject(new Error(GlobalErrorCodes.SERVER_ERROR));
-          })
+          connection.rollback();
         })
         if (resp) {
           fkDocId = resp.data.insertId;
+        } else {
+          return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
         }
       }
 
@@ -155,23 +155,25 @@ const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
 
 
       // insert rows to sections table
-      await insertSectionsQuery(sections).catch(() => {
-        connection.rollback(() => {
-          reject(new Error(GlobalErrorCodes.SERVER_ERROR));
-        })
+      const sectionInsertResp = await insertSectionsQuery(sections).catch(() => {
+        connection.rollback();
       })
+      if (!sectionInsertResp) {
+        return reject(new Error(GlobalErrorCodes.SERVER_ERROR));
+      }
 
 
       // insert rows to pages table
-      await insertPagesQuery(pages).catch(() => {
-        connection.rollback(() => {
-          reject(new Error(GlobalErrorCodes.SERVER_ERROR));
-        })
+      const pageInsertResp = await insertPagesQuery(pages).catch(() => {
+        connection.rollback();
       })
+      if (!pageInsertResp) {
+        return reject(new Error(GlobalErrorCodes.SERVER_ERROR));
+      }
 
       connection.commit((commitErr) => {
         if (commitErr) {
-          reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+          return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
         }
         Logger.info('publish new doc transaction committed!')
         resolve({ document_id: fkDocId, version })

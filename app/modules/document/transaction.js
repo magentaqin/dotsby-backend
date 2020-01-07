@@ -71,7 +71,7 @@ const insertApiItemsQuery = (apiItems) => {
   })
 }
 
-const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
+const publishTransaction = (docData, sectionData, isNewVersion) => {
   /**
    * config doc data
    */
@@ -94,7 +94,8 @@ const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
       /**
        * 1) if the version is new:insert rows in docs/sections/pages/api_items table.
        *
-       * 2) if the version existed already && it has not been published:update title in docs and insert rows in sections/pages/api_items table.
+       * 2) if the version existed already: update title in docs and insert rows in sections/pages/api_items table.
+       *
        */
       if (isNewVersion) {
         const resp = await insertNewDocQuery(insertedDoc, document_id, user_id).catch(() => {
@@ -218,11 +219,6 @@ const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
   })
 }
 
-const updatePublishedDocTransaction = () => {
-
-}
-
 module.exports = {
-  publishNewDocTransaction,
-  updatePublishedDocTransaction,
+  publishTransaction,
 }

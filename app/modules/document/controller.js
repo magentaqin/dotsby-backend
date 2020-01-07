@@ -10,7 +10,7 @@ const { sampleDocumentInfo } = require('@test/sampleData')
 const { queryUserById } = require('@app/modules/user/query');
 const responseHelper = require('@app/utils/response');
 const { createDocQuery, queryDocByDocId } = require('./query');
-const { publishNewDocTransaction } = require('./transaction');
+const { publishTransaction } = require('./transaction');
 
 const validator = new Validator();
 const serverErrMsg = GlobalErr[GlobalErrorCodes.SERVER_ERROR];
@@ -42,7 +42,7 @@ const createDocument = async(ctx) => {
   // hash document_id. document_id is used to identify the document.
   const document_id = hashHelper({ email, document_created_at: Date.now() })
 
- await createDocQuery({ document_id, version, title, user_id: userInfo.id, email }).catch(err => {
+  await createDocQuery({ document_id, version, title, user_id: userInfo.id, email }).catch(err => {
     if (err.message === GlobalErrorCodes.SERVER_ERROR) {
       responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
     }
@@ -51,6 +51,9 @@ const createDocument = async(ctx) => {
   responseHelper.success(ctx, { document_id }, 200);
 }
 
+/**
+ * Publish Document
+ */
 const publishDocument = async(ctx) => {
   if (!ctx.isTokenValid) {
     responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
@@ -100,26 +103,26 @@ const publishDocument = async(ctx) => {
     title,
     user_id: userId,
     email,
-    id_of_doc: matchedDoc.id,
   }
-  let resp;
+  let resp = {};
   if (isVersionExisted) {
     docData.document_id = matchedDoc.document_id;
-    if (matchedDoc.is_published) {
-      // update already published version
-    } else {
-      // publish the first version of doc
-      resp = await publishNewDocTransaction(docData, sections, false).catch(err => {
-        console.log('ERROR CATCHED!')
-        if (err.message === GlobalErrorCodes.SERVER_ERROR) {
-          responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
-        }
-      })
-    }
+    docData.id_of_doc = matchedDoc.id;
+    // publish the first version of doc or update already published version. NEED OPTIMIZE. TODO!
+    resp = await publishTransaction(docData, sections, false).catch(err => {
+      if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+        responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+      }
+    })
   } else {
     const document_id = hashHelper({ email, document_created_at: Date.now() })
     docData.document_id = document_id;
     // publish new versions of doc
+    resp = await publishTransaction(docData, sections, true).catch(err => {
+      if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+        responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+      }
+    })
   }
 
   const data = {

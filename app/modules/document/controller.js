@@ -100,14 +100,16 @@ const publishDocument = async(ctx) => {
     title,
     user_id: userId,
     email,
+    id_of_doc: matchedDoc.id,
   }
+  let resp;
   if (isVersionExisted) {
     docData.document_id = matchedDoc.document_id;
     if (matchedDoc.is_published) {
       // update already published version
     } else {
       // publish the first version of doc
-      const resp = await publishNewDocTransaction(docData, sections, false).catch(err => {
+      resp = await publishNewDocTransaction(docData, sections, false).catch(err => {
         console.log('ERROR CATCHED!')
         if (err.message === GlobalErrorCodes.SERVER_ERROR) {
           responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
@@ -116,12 +118,13 @@ const publishDocument = async(ctx) => {
     }
   } else {
     const document_id = hashHelper({ email, document_created_at: Date.now() })
+    docData.document_id = document_id;
     // publish new versions of doc
   }
 
   const data = {
-    document_id: '1qazxsw2',
-    version: 0.1,
+    document_id: resp.document_id,
+    version: resp.version,
   }
 
   responseHelper.success(ctx, data, 200)

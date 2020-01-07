@@ -1,5 +1,6 @@
 const hashHelper = require('object-hash');
 const { formatUTCDatetime } = require('@app/utils/datetimehelper');
+const { formatApiItems } = require('@app/utils/apiItem');
 const connection = require('@app/db/init');
 const Logger = require('@app/utils/logger');
 const { GlobalErrorCodes } = require('@app/utils/errorMessages');
@@ -32,7 +33,7 @@ const updateDocQuery = (updatedDoc, document_id, user_id) => {
 }
 
 const insertSectionsQuery = (sections) => {
-  const sectionsInsertSql = `INSERT INTO sections(page_id,title,order_index,page_info,created_at,updated_at,doc_id) VALUES ? `;
+  const sectionsInsertSql = `INSERT INTO sections(section_id,title,order_index,page_info,created_at,updated_at,doc_id) VALUES ? `;
   return new Promise((resolve, reject) => {
     connection.query(sectionsInsertSql, [sections], (error, results) => {
       if (error) {
@@ -57,16 +58,29 @@ const insertPagesQuery = (pages) => {
   });
 }
 
+const insertApiItemsQuery = (apiItems) => {
+  const sql = `INSERT INTO api_items(displayName, description, category, created_at, updated_at, page_id) VALUES ? `;
+  return new Promise((resolve, reject) => {
+    connection.query(sql, [apiItems], (error, results) => {
+      if (error) {
+        Logger.error('insert api items err: ', error, apiItems);
+        reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+      }
+      resolve({ data: results })
+    })
+  })
+}
+
 const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
   /**
    * config doc data
    */
   const {
-    document_id, version, title, user_id, email,
+    document_id, version, title, user_id, email, id_of_doc,
   } = docData;
   const now = formatUTCDatetime();
   const insertedDoc = [document_id, version, title, true, now, now, user_id, email];
-  const updatedDoc = [title, now, true, docData.id];
+  const updatedDoc = [title, now, true, id_of_doc];
 
   return new Promise((resolve, reject) => {
     connection.beginTransaction(async (err) => {
@@ -96,7 +110,7 @@ const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
           connection.rollback();
         })
         if (resp) {
-          fkDocId = resp.data.insertId;
+          fkDocId = id_of_doc;
         } else {
           return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
         }
@@ -107,6 +121,7 @@ const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
       */
       const pages = [];
       const sections = [];
+      let apiItems = [];
       sectionData.forEach((item, index) => {
         const sectionId = hashHelper({ section_title: item.title, order_index: index, created_at: now });
 
@@ -138,6 +153,19 @@ const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
             now,
             sectionId,
           ])
+
+          if (apiContent) {
+            const { request_headers, query_params, body, responses } = apiContent;
+            const requestHeaderItems = formatApiItems({ data: request_headers, category: 'REQUEST_HEADERS' }, pageId);
+            const queryParamsItems = formatApiItems({ data: query_params, category: 'QUERY_PARAMS' }, pageId);
+            const requestBodyItems = formatApiItems({ data: body, category: 'REQUEST_BODY' }, pageId);
+            apiItems = apiItems.concat(requestHeaderItems, queryParamsItems, requestBodyItems);
+            responses.forEach(response => {
+              const responseHeaders = formatApiItems({ data: response.headers, category: 'RESPONSE_HEADERS' }, pageId);
+              const responseData = formatApiItems({ data: response.data, category: 'RESPONSE_DATA' }, pageId);
+              apiItems = apiItems.concat(responseHeaders, responseData);
+            })
+          }
 
           return pageObj;
         })
@@ -171,12 +199,20 @@ const publishNewDocTransaction = (docData, sectionData, isNewVersion) => {
         return reject(new Error(GlobalErrorCodes.SERVER_ERROR));
       }
 
+      // insert rows to api_items table
+      const apiItemInsertResp = await insertApiItemsQuery(apiItems).catch(() => {
+        connection.rollback();
+      })
+      if (!apiItemInsertResp) {
+        return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+      }
+
       connection.commit((commitErr) => {
         if (commitErr) {
           return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
         }
         Logger.info('publish new doc transaction committed!')
-        resolve({ document_id: fkDocId, version })
+        resolve({ document_id, version })
       })
     })
   })

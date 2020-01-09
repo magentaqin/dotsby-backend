@@ -1,6 +1,4 @@
-const sampleDocument = {
-  document_id: '1qazxsw2',
-  version: 0.1,
+const mockedDocToPublish = {
   title: 'Sample Doc',
   sections: [
     {
@@ -46,7 +44,7 @@ const time = {
 const sampleDocumentInfo = {
   id: 1,
   document_id: '1qazxsw2',
-  version: 0.1,
+  version: '0.1.0',
   title: 'Sample Doc',
   is_private: false,
   ...time,
@@ -259,7 +257,7 @@ const samplePageInfo = [
 ]
 
 module.exports = {
-  sampleDocument,
+  mockedDocToPublish,
   sampleDocumentInfo,
   samplePageInfo,
 }

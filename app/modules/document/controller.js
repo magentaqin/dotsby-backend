@@ -48,7 +48,7 @@ const createDocument = async(ctx) => {
     }
   })
 
-  responseHelper.success(ctx, { document_id }, 200);
+  responseHelper.success(ctx, { document_id, version }, 200);
 }
 
 /**

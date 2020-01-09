@@ -201,11 +201,13 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
       }
 
       // insert rows to api_items table
-      const apiItemInsertResp = await insertApiItemsQuery(apiItems).catch(() => {
-        connection.rollback();
-      })
-      if (!apiItemInsertResp) {
-        return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+      if (apiItems.length) {
+        const apiItemInsertResp = await insertApiItemsQuery(apiItems).catch(() => {
+          connection.rollback();
+        })
+        if (!apiItemInsertResp) {
+          return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+        }
       }
 
       connection.commit((commitErr) => {

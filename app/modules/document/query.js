@@ -34,7 +34,21 @@ const queryDocByDocId = (document_id) => {
   })
 }
 
+const queryDocsbyUserId = (user_id) => {
+  const sql = `SELECT document_id, version, title, created_at, updated_at FROM docs WHERE user_id = ${mysql.escape(user_id)} AND is_published = true ORDER BY created_at DESC`;
+  return new Promise((resolve, reject) => {
+    dbConnection.query(sql, (error, results) => {
+      if (error) {
+        Logger.error('query docs by user_id error', error)
+        reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+      }
+      resolve({ data: results })
+    })
+  })
+}
+
 module.exports = {
   createDocQuery,
   queryDocByDocId,
+  queryDocsbyUserId,
 }

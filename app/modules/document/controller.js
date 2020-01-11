@@ -5,11 +5,12 @@ const createDocumentQuerySchema = require('@schema/src/apis/document_create_para
 const publishDocumentQuerySchema = require('@schema/src/apis/document_publish_params');
 const getDocumentInfoQuerySchema = require('@schema/src/apis/document_info_params');
 const { GlobalErrorCodes, GlobalErr, DocErrorCodes, DocErr } = require('@app/utils/errorMessages');
-const { extractErrMsg } = require('@app/utils/extract')
+const { extractErrMsg } = require('@app/utils/extract');
+const { compareVersion } = require('@app/utils/compare');
 const { sampleDocumentInfo } = require('@test/sampleData')
 const { queryUserById } = require('@app/modules/user/query');
 const responseHelper = require('@app/utils/response');
-const { createDocQuery, queryDocByDocId } = require('./query');
+const { createDocQuery, queryDocByDocId, queryDocsbyUserId } = require('./query');
 const { publishTransaction } = require('./transaction');
 
 const validator = new Validator();
@@ -103,10 +104,10 @@ const publishDocument = async(ctx) => {
     title,
     user_id: userId,
     email,
+    document_id: ctx.request.body.document_id,
   }
   let resp = {};
   if (isVersionExisted) {
-    docData.document_id = matchedDoc.document_id;
     docData.id_of_doc = matchedDoc.id;
     // publish the first version of doc or update already published version. NEED OPTIMIZE. TODO!
     resp = await publishTransaction(docData, sections, false).catch(err => {
@@ -115,8 +116,6 @@ const publishDocument = async(ctx) => {
       }
     })
   } else {
-    const document_id = hashHelper({ email, document_created_at: Date.now() })
-    docData.document_id = document_id;
     // publish new versions of doc
     resp = await publishTransaction(docData, sections, true).catch(err => {
       if (err.message === GlobalErrorCodes.SERVER_ERROR) {
@@ -129,6 +128,53 @@ const publishDocument = async(ctx) => {
     document_id: resp.document_id,
     version: resp.version,
   }
+
+  responseHelper.success(ctx, data, 200)
+}
+
+const listDocument = async(ctx) => {
+  if (!ctx.isTokenValid) {
+    responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
+  }
+  const { userId, email } = ctx.tokenPayload;
+  const queryResp = await queryUserById(userId).catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
+  const userInfo = queryResp.data[0];
+  if (userInfo.email !== email) {
+    responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
+  }
+
+  const docsListQueryResp = await queryDocsbyUserId(userInfo.id).catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
+
+  const docslistMap = {};
+  docsListQueryResp.data.forEach(item => {
+    const key = item.document_id;
+    if (!docslistMap[key]) {
+      docslistMap[key] = {
+        ...item,
+        all_versions: [item.version],
+      }
+    } else {
+      const prevDoc = docslistMap[key]
+      prevDoc.all_versions.push(item.version);
+      if (compareVersion(prevDoc.version, item.version) === -1) {
+        docslistMap[key] = {
+          ...item,
+          all_versions: prevDoc.all_versions,
+        }
+      }
+    }
+  })
+
+
+  const data = Object.values(docslistMap);
 
   responseHelper.success(ctx, data, 200)
 }
@@ -158,4 +204,5 @@ module.exports = {
   createDocument,
   publishDocument,
   getDocumentInfo,
+  listDocument,
 }

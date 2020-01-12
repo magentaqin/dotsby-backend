@@ -10,6 +10,7 @@ const { compareVersion } = require('@app/utils/compare');
 const { sampleDocumentInfo } = require('@test/sampleData')
 const { queryUserById } = require('@app/modules/user/query');
 const responseHelper = require('@app/utils/response');
+const { formatUTCDatetime } = require('@app/utils/datetimehelper');
 const { createDocQuery, queryDocByDocId, queryDocsbyUserId } = require('./query');
 const { publishTransaction } = require('./transaction');
 
@@ -156,9 +157,14 @@ const listDocument = async(ctx) => {
   const docslistMap = {};
   docsListQueryResp.data.forEach(item => {
     const key = item.document_id;
+    const formattedItem = {
+      ...item,
+      created_at: formatUTCDatetime(item.created_at, true),
+      updated_at: formatUTCDatetime(item.updated_at, true),
+    }
     if (!docslistMap[key]) {
       docslistMap[key] = {
-        ...item,
+        ...formattedItem,
         all_versions: [item.version],
       }
     } else {
@@ -166,7 +172,7 @@ const listDocument = async(ctx) => {
       prevDoc.all_versions.push(item.version);
       if (compareVersion(prevDoc.version, item.version) === -1) {
         docslistMap[key] = {
-          ...item,
+          ...formattedItem,
           all_versions: prevDoc.all_versions,
         }
       }

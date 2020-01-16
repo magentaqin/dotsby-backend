@@ -230,12 +230,14 @@ const getDocumentInfo = async(ctx) => {
     const section =  {
       section_id: item.section_id,
       title: item.section_id,
-      created_at: item.created_at,
-      updated_at: item.updated_at,
+      created_at: formatUTCDatetime(item.created_at, true),
+      updated_at: formatUTCDatetime(item.updated_at, true),
       pages: JSON.parse(item.page_info),
     }
     sectionsData[item.order_index] = section;
   })
+  docData.created_at = formatUTCDatetime(docData.created_at, true);
+  docData.updated_at = formatUTCDatetime(docData.updated_at, true);
   docData.sections = sectionsData;
 
   const data = omitKeys(docData, ['id']);

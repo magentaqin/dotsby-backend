@@ -186,7 +186,6 @@ const listDocument = async(ctx) => {
   responseHelper.success(ctx, data, 200)
 }
 
-
 const getDocumentInfo = async(ctx) => {
   // check auth
   if (!ctx.isTokenValid) {

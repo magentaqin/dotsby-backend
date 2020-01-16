@@ -233,8 +233,34 @@ const getUserInfo = async(ctx) => {
   responseHelper.success(ctx, responseData, 200);
 }
 
+const logout = async(ctx) => {
+  if (!ctx.isTokenValid) {
+    responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
+  }
+  const { userId, email } = ctx.tokenPayload;
+  const queryResp = await queryUserById(userId).catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
+  const userInfo = queryResp.data[0];
+  if (userInfo.email !== email) {
+    responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
+  }
+
+  const responseData = {
+    email: '',
+    token: '',
+    created_at: '',
+    updated_at: '',
+    last_login_at: '',
+  }
+  responseHelper.success(ctx, responseData, 200);
+}
+
 module.exports = {
   signUp,
   login,
   getUserInfo,
+  logout,
 }

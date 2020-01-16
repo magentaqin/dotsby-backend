@@ -8,5 +8,6 @@ router
   .post('signUp', '/user/signup', controller.signUp)
   .post('login', '/user/login', controller.login)
   .get('getUserInfo', '/user/info', controller.getUserInfo)
+  .post('logout', '/logout', controller.logout)
 
 module.exports = router;

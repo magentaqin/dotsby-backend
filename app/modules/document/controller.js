@@ -11,7 +11,8 @@ const { sampleDocumentInfo } = require('@test/sampleData')
 const { queryUserById } = require('@app/modules/user/query');
 const responseHelper = require('@app/utils/response');
 const { formatUTCDatetime } = require('@app/utils/datetimehelper');
-const { createDocQuery, queryDocByDocId, queryDocsbyUserId } = require('./query');
+const { omitKeys } = require('@app/utils/obj');
+const { createDocQuery, queryDocByDocId, queryDocsbyUserId, queryDocbyVersion, querySectionsByDocId } = require('./query');
 const { publishTransaction } = require('./transaction');
 
 const validator = new Validator();
@@ -187,21 +188,57 @@ const listDocument = async(ctx) => {
 
 
 const getDocumentInfo = async(ctx) => {
-  const { document_id, version } = ctx.request.query;
-  // 400
-  const query = {
-    document_id,
-    version: Number(version),
+  // check auth
+  if (!ctx.isTokenValid) {
+    responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
   }
-  const validationResult = validator.validate(query, getDocumentInfoQuerySchema.schema)
+  const { userId, email } = ctx.tokenPayload;
+  const userQueryResp = await queryUserById(userId).catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
+  const userInfo = userQueryResp.data[0];
+  if (userInfo.email !== email) {
+    responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
+  }
+
+  // validate query
+  const validationResult = validator.validate(ctx.request.query, getDocumentInfoQuerySchema.schema)
   if (!validationResult.instance || validationResult.errors.length) {
     responseHelper.paramsFail(ctx, extractErrMsg(validationResult))
   }
 
-  // 401 TODO
+  // query doc by document_id and version
+  const { document_id, version } = ctx.request.query;
+  const docQueryResp = await queryDocbyVersion(document_id, version).catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
+  const docData = docQueryResp.data[0]
+  const docUpdatedAt = docData.updated_at;
+  const id_of_doc = docData.id;
+  const sectionQueryResp = await querySectionsByDocId(id_of_doc, docUpdatedAt).catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
 
-  // mock data. TEMPORARY
-  const data = sampleDocumentInfo
+  const sectionsData = [];
+  sectionQueryResp.data.forEach(item => {
+    const section =  {
+      section_id: item.section_id,
+      title: item.section_id,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      pages: JSON.parse(item.page_info),
+    }
+    sectionsData[item.order_index] = section;
+  })
+  docData.sections = sectionsData;
+
+  const data = omitKeys(docData, ['id']);
 
   responseHelper.success(ctx, data, 200)
 }

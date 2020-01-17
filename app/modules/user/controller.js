@@ -248,14 +248,7 @@ const logout = async(ctx) => {
     responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
   }
 
-  const responseData = {
-    email: '',
-    token: '',
-    created_at: '',
-    updated_at: '',
-    last_login_at: '',
-  }
-  responseHelper.success(ctx, responseData, 200);
+  responseHelper.success(ctx, {}, 200);
 }
 
 module.exports = {

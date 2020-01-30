@@ -9,7 +9,6 @@ const {
 } = require('@app/utils/errorMessages');
 const { extractErrMsg } = require('@app/utils/extract');
 const { compareVersion } = require('@app/utils/compare');
-const { sampleDocumentInfo } = require('@test/sampleData')
 const { queryUserById } = require('@app/modules/user/query');
 const responseHelper = require('@app/utils/response');
 const { formatUTCDatetime } = require('@app/utils/datetimehelper');

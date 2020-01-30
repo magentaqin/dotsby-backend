@@ -4,7 +4,9 @@ const hashHelper = require('object-hash');
 const createDocumentQuerySchema = require('@schema/src/apis/document_create_params');
 const publishDocumentQuerySchema = require('@schema/src/apis/document_publish_params');
 const getDocumentInfoQuerySchema = require('@schema/src/apis/document_info_params');
-const { GlobalErrorCodes, GlobalErr, DocErrorCodes, DocErr } = require('@app/utils/errorMessages');
+const {
+  GlobalErrorCodes, GlobalErr, DocErrorCodes, DocErr,
+} = require('@app/utils/errorMessages');
 const { extractErrMsg } = require('@app/utils/extract');
 const { compareVersion } = require('@app/utils/compare');
 const { sampleDocumentInfo } = require('@test/sampleData')
@@ -12,7 +14,9 @@ const { queryUserById } = require('@app/modules/user/query');
 const responseHelper = require('@app/utils/response');
 const { formatUTCDatetime } = require('@app/utils/datetimehelper');
 const { omitKeys } = require('@app/utils/obj');
-const { createDocQuery, queryDocByDocId, queryDocsbyUserId, queryDocbyVersion, querySectionsByDocId } = require('./query');
+const {
+  createDocQuery, queryDocByDocId, queryDocsbyUserId, queryDocbyVersion, querySectionsByDocId,
+} = require('./query');
 const { publishTransaction } = require('./transaction');
 
 const validator = new Validator();
@@ -45,7 +49,9 @@ const createDocument = async(ctx) => {
   // hash document_id. document_id is used to identify the document.
   const document_id = hashHelper({ email, document_created_at: Date.now() })
 
-  await createDocQuery({ document_id, version, title, user_id: userInfo.id, email }).catch(err => {
+  await createDocQuery({
+    document_id, version, title, user_id: userInfo.id, email,
+  }).catch(err => {
     if (err.message === GlobalErrorCodes.SERVER_ERROR) {
       responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
     }
@@ -85,13 +91,24 @@ const publishDocument = async(ctx) => {
     }
   })
 
+  // should create document before publishing
   if (!docQueryResp.data.length || docQueryResp.data[0].email !== userInfo.email) {
     const errorCode = DocErrorCodes.CREATE_BEFORE_PUBLISH;
     responseHelper.fail(ctx, errorCode, DocErr[errorCode], 403);
   }
 
-  // check if version existed
   const { version, title, sections } = ctx.request.body;
+
+  // publishment of initial version can not be skipped
+  if (docQueryResp.data.length === 1) {
+    const initialDoc = docQueryResp.data[0];
+    if (!initialDoc.is_published && initialDoc.version !== version) {
+      const errorCode = DocErrorCodes.INITIAL_VERSION_MUST_PUBLISH;
+      responseHelper.fail(ctx, errorCode, DocErr[errorCode], 403);
+    }
+  }
+
+  // check if version existed
   let matchedDoc;
   const isVersionExisted = docQueryResp.data.some(item => {
     if (item.version === version) {
@@ -118,7 +135,7 @@ const publishDocument = async(ctx) => {
       }
     })
   } else {
-    // publish new versions of doc
+    // publish new version of doc
     resp = await publishTransaction(docData, sections, true).catch(err => {
       if (err.message === GlobalErrorCodes.SERVER_ERROR) {
         responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
@@ -154,13 +171,13 @@ const listDocument = async(ctx) => {
       responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
     }
   })
-
   const docslistMap = {};
   docsListQueryResp.data.forEach(item => {
     const key = item.document_id;
     const formattedItem = {
       ...item,
-      created_at: formatUTCDatetime(item.created_at, true),
+      is_published: !!item.is_published,
+      created_at: formatUTCDatetime(item.creaed_at, true),
       updated_at: formatUTCDatetime(item.updated_at, true),
     }
     if (!docslistMap[key]) {
@@ -226,7 +243,7 @@ const getDocumentInfo = async(ctx) => {
 
   const sectionsData = [];
   sectionQueryResp.data.forEach(item => {
-    const section =  {
+    const section = {
       section_id: item.section_id,
       title: item.section_id,
       created_at: formatUTCDatetime(item.created_at, true),

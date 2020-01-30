@@ -65,6 +65,17 @@ describe('Test Document APIS', async () => {
    * Publish Document Api
    */
   describe('Publish Document', async () => {
+    // 403 publishment of initial version can not be skipped
+    it('should return error code INITIAL_VERSION_MUST_PUBLISH and 403 status when initial version has not been published', async() => {
+      mockedDocToPublish.document_id = document_id;
+      mockedDocToPublish.version = '1.12.1';
+      const resp = await http.post(publishDocumentUrl, mockedDocToPublish, authHeader);
+      assert(resp.status === 403)
+      assert(validator.validate(resp.data, errorResponseSchema.schema).errors.length === 0)
+      assert(resp.data.code === DocErrorCodes.INITIAL_VERSION_MUST_PUBLISH);
+    })
+
+
     // 200 OK
     it('should return document_id and version and 200 status when document is published successfully', async() => {
       mockedDocToPublish.document_id = document_id;
@@ -92,7 +103,7 @@ describe('Test Document APIS', async () => {
       assert(resp.status === 401)
     })
 
-    // 403
+    // 403.should create document before publishing
     it('should return error code CREATE_BEFORE_PUBLUSH and 403 status when document_id not found in database', async() => {
       mockedDocToPublish.document_id = '%1234';
       const resp = await http.post(publishDocumentUrl, mockedDocToPublish, authHeader);
@@ -100,6 +111,7 @@ describe('Test Document APIS', async () => {
       assert(validator.validate(resp.data, errorResponseSchema.schema).errors.length === 0)
       assert(resp.data.code === DocErrorCodes.CREATE_BEFORE_PUBLISH);
     })
+
   });
 
 

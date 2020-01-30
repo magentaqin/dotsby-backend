@@ -13,6 +13,7 @@ const UserErrorCodes = {
 
 const DocErrorCodes = {
   CREATE_BEFORE_PUBLISH: 'CREATE_BEFORE_PUBLISH',
+  INITIAL_VERSION_MUST_PUBLISH: 'INITIAL_VERSION_MUST_PUBLISH',
 }
 
 const GlobalErr = {
@@ -29,6 +30,7 @@ const UserErr = {
 
 const DocErr = {
   [DocErrorCodes.CREATE_BEFORE_PUBLISH]: 'You have to create document in Dotsby Dashboard before publishing.',
+  [DocErrorCodes.INITIAL_VERSION_MUST_PUBLISH]: 'You have to publish the initial version of doc before.',
 }
 
 

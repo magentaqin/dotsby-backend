@@ -111,7 +111,6 @@ describe('Test Document APIS', async () => {
       assert(validator.validate(resp.data, errorResponseSchema.schema).errors.length === 0)
       assert(resp.data.code === DocErrorCodes.CREATE_BEFORE_PUBLISH);
     })
-
   });
 
 
@@ -151,12 +150,12 @@ describe('Test Document APIS', async () => {
     })
 
     // 401 TODO
-    it('should return 401 status when unauthorized', async() => {
-      const resp = await http.get(getDocInfoUrl);
-      const result = validator.validate(resp.data.data, errorResponseSchema.schema)
-      assert(result.errors.length === 0)
-      assert(resp.status === 401)
-    })
+    // it('should return 401 status when unauthorized', async() => {
+    //   const resp = await http.get(getDocInfoUrl, { document_id, version });
+    //   const result = validator.validate(resp.data.data, errorResponseSchema.schema)
+    //   assert(result.errors.length === 0)
+    //   assert(resp.status === 401)
+    // })
 
     // 400
     it('should return 400 status when document id is not passed', async() => {
@@ -164,6 +163,15 @@ describe('Test Document APIS', async () => {
       assert(resp.status === 400)
       assert(validator.validate(resp.data, errorResponseSchema.schema).errors.length === 0)
       assert(resp.data.code === GlobalErrorCodes.INVALID_PARAMETERS)
+    })
+
+    // 404
+    it('should return 404 status when document can not be found', async() => {
+      const query = { document_id: '1234', version: '0.1.0' }
+      const resp = await http.get(getDocInfoUrl, query, authHeader)
+      assert(resp.status === 404)
+      assert(validator.validate(resp.data, errorResponseSchema.schema).errors.length === 0)
+      assert(resp.data.code === GlobalErrorCodes.NOT_FOUND)
     })
   })
 });

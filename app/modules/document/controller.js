@@ -21,6 +21,7 @@ const { publishTransaction } = require('./transaction');
 const validator = new Validator();
 const serverErrMsg = GlobalErr[GlobalErrorCodes.SERVER_ERROR];
 const authFailMsg = GlobalErr[GlobalErrorCodes.AUTH_FAILED];
+const notFoundMsg = GlobalErr[GlobalErrorCodes.NOT_FOUND];
 
 
 const createDocument = async(ctx) => {
@@ -203,21 +204,6 @@ const listDocument = async(ctx) => {
 }
 
 const getDocumentInfo = async(ctx) => {
-  // check auth
-  if (!ctx.isTokenValid) {
-    responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
-  }
-  const { userId, email } = ctx.tokenPayload;
-  const userQueryResp = await queryUserById(userId).catch(err => {
-    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
-      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
-    }
-  })
-  const userInfo = userQueryResp.data[0];
-  if (userInfo.email !== email) {
-    responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
-  }
-
   // validate query
   const validationResult = validator.validate(ctx.request.query, getDocumentInfoQuerySchema.schema)
   if (!validationResult.instance || validationResult.errors.length) {
@@ -231,7 +217,30 @@ const getDocumentInfo = async(ctx) => {
       responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
     }
   })
+
+  // handle not found 404
+  if (!docQueryResp.data.length) {
+    responseHelper.fail(ctx, GlobalErrorCodes.NOT_FOUND, notFoundMsg, 404);
+  }
+
   const docData = docQueryResp.data[0]
+  if (docData.is_private) {
+    // check auth
+    if (!ctx.isTokenValid) {
+      responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
+    }
+    const { userId, email } = ctx.tokenPayload;
+    const userQueryResp = await queryUserById(userId).catch(err => {
+      if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+        responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+      }
+    })
+    const userInfo = userQueryResp.data[0];
+    if (userInfo.email !== email) {
+      responseHelper.fail(ctx, GlobalErrorCodes.AUTH_FAILED, authFailMsg, 401);
+    }
+  }
+
   const docUpdatedAt = docData.updated_at;
   const id_of_doc = docData.id;
   const sectionQueryResp = await querySectionsByDocId(id_of_doc, docUpdatedAt).catch(err => {

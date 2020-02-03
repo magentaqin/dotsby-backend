@@ -3,6 +3,7 @@ const GlobalErrorCodes = {
   AUTH_FAILED: 'AUTH_FAILED',
   OPERATION_NOT_ALLOWED: 'OPERATION_NOT_ALLOWED',
   INVALID_PARAMETERS: 'INVALID_PARAMETERS',
+  NOT_FOUND: 'NOT_FOUND',
 }
 
 const UserErrorCodes = {
@@ -20,6 +21,7 @@ const GlobalErr = {
   [GlobalErrorCodes.SERVER_ERROR]: 'Server is not available now',
   [GlobalErrorCodes.AUTH_FAILED]: 'User is not authenticated.',
   [GlobalErrorCodes.OPERATION_NOT_ALLOWED]: 'You have no access to this resource.',
+  [GlobalErrorCodes.NOT_FOUND]: 'Source you request is not found',
 }
 
 const UserErr = {

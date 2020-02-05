@@ -73,10 +73,24 @@ const querySectionsByDocId = (fkDocId, updated_at) => {
   })
 }
 
+const queryDocAuth = (document_id) => {
+  const sql = `SELECT DISTINCT is_private FROM docs WHERE document_id = ${mysql.escape(document_id)}`;
+  return new Promise((resolve, reject) => {
+    dbConnection.query(sql, (error, results) => {
+      if (error) {
+        Logger.error('query doc auth by document_id error', error)
+        reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+      }
+      resolve({ data: results })
+    })
+  })
+}
+
 module.exports = {
   createDocQuery,
   queryDocByDocId,
   queryDocsbyUserId,
   queryDocbyVersion,
   querySectionsByDocId,
+  queryDocAuth,
 }

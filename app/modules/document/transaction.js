@@ -33,7 +33,7 @@ const updateDocQuery = (updatedDoc, document_id, user_id) => {
 }
 
 const insertSectionsQuery = (sections) => {
-  const sectionsInsertSql = `INSERT INTO sections(section_id,title,order_index,page_info,created_at,updated_at,doc_id) VALUES ? `;
+  const sectionsInsertSql = 'INSERT INTO sections(section_id,title,order_index,page_info,created_at,updated_at,doc_id) VALUES ? ';
   return new Promise((resolve, reject) => {
     connection.query(sectionsInsertSql, [sections], (error, results) => {
       if (error) {
@@ -46,7 +46,7 @@ const insertSectionsQuery = (sections) => {
 }
 
 const insertPagesQuery = (pages) => {
-  const sql = `INSERT INTO pages(page_id,title,is_root_path,path, content, api_content, request_url, subtitles, created_at,updated_at,section_id) VALUES ? `;
+  const sql = 'INSERT INTO pages(page_id,title,is_root_path,path, content, api_content, request_url, subtitles, created_at,updated_at,section_id) VALUES ? ';
   return new Promise((resolve, reject) => {
     connection.query(sql, [pages], (error, results) => {
       if (error) {
@@ -59,7 +59,7 @@ const insertPagesQuery = (pages) => {
 }
 
 const insertApiItemsQuery = (apiItems) => {
-  const sql = `INSERT INTO api_items(displayName, description, category, created_at, updated_at, page_id) VALUES ? `;
+  const sql = 'INSERT INTO api_items(displayName, description, category, created_at, updated_at, page_id) VALUES ? ';
   return new Promise((resolve, reject) => {
     connection.query(sql, [apiItems], (error, results) => {
       if (error) {
@@ -130,7 +130,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
           const pageId = hashHelper({ page_title: pageItem.title, path: pageItem.path, created_at: now });
           const pageObj = {
             title: pageItem.title,
-            is_root_path: pageItem.is_root_path,
+            is_root_path: !!pageItem.is_root_path,
             path: pageItem.path,
             page_id: pageId,
           }
@@ -144,7 +144,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
           pages.push([
             pageId,
             pageItem.title,
-            pageItem.is_root_path,
+            !!pageItem.is_root_path,
             pageItem.path,
             pageContent,
             api_content,
@@ -156,7 +156,9 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
           ])
 
           if (apiContent) {
-            const { request_headers, query_params, body, responses } = apiContent;
+            const {
+              request_headers, query_params, body, responses,
+            } = apiContent;
             const requestHeaderItems = formatApiItems({ data: request_headers, category: 'REQUEST_HEADERS' }, pageId);
             const queryParamsItems = formatApiItems({ data: query_params, category: 'QUERY_PARAMS' }, pageId);
             const requestBodyItems = formatApiItems({ data: body, category: 'REQUEST_BODY' }, pageId);

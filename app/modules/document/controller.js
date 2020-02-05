@@ -253,7 +253,7 @@ const getDocumentInfo = async(ctx) => {
   sectionQueryResp.data.forEach(item => {
     const section = {
       section_id: item.section_id,
-      title: item.section_id,
+      title: item.title,
       created_at: formatUTCDatetime(item.created_at, true),
       updated_at: formatUTCDatetime(item.updated_at, true),
       pages: JSON.parse(item.page_info),

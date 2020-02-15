@@ -61,6 +61,7 @@ const getPageInfo = async(ctx) => {
   const data = pageQueryResp.data[0];
   data.is_root_path = !!data.is_root_path;
   data.api_content = data.api_content ? JSON.parse(data.api_content) : data.api_content;
+  data.content = data.content ? JSON.parse(data.content) : data.content;
   data.created_at = formatUTCDatetime(data.created_at, true);
   data.updated_at = formatUTCDatetime(data.updated_at, true);
 

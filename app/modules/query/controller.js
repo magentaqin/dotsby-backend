@@ -1,13 +1,22 @@
 const responseHelper = require('@app/utils/response')
 const { extractErrMsg } = require('@app/utils/extract')
-const { queryDocAuth, queryUserById } = require('@app/modules/document/query');
 const { Validator } = require('jsonschema')
 const {
   GlobalErrorCodes, GlobalErr,
 } = require('@app/utils/errorMessages');
 const querySchema = require('@schema/src/apis/query_params')
 
-const validator = new Validator()
+const {
+  queryIdOfDoc,
+  createTempSections,
+  dropTempSections,
+  queryText,
+} = require('./query')
+
+const validator = new Validator();
+const serverErrMsg = GlobalErr[GlobalErrorCodes.SERVER_ERROR];
+const authFailMsg = GlobalErr[GlobalErrorCodes.AUTH_FAILED];
+const notFoundMsg = GlobalErr[GlobalErrorCodes.NOT_FOUND];
 
 const listQueryResults = async(ctx) => {
   let limit = 5;
@@ -22,14 +31,46 @@ const listQueryResults = async(ctx) => {
     responseHelper.paramsFail(ctx, extractErrMsg(validationResult))
   }
 
-  const { document_id, query_type, search_string } = ctx.request.query;
+  const { document_id, version, query_type, search_string } = ctx.request.query;
+
+  // Get id of doc
+  const docQueryResp = await queryIdOfDoc(document_id, version).catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
+  if (!docQueryResp.data.length) {
+    responseHelper.fail(ctx, GlobalErrorCodes.NOT_FOUND, notFoundMsg, 404);
+  }
+
+  const doc = docQueryResp.data[0];
 
   // TODO. Check Auth.
 
+  // create temp sections table
+  await createTempSections(doc.id, doc.updated_at).catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
+
   // handle query type "TEXT"
   if (query_type === 'TEXT') {
-
+    const resp = await queryText(search_string, limit).catch(err => {
+      if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+        responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+      }
+    })
+    console.log('RESP', resp.data)
   }
+
+  // drop temp sections table
+  await dropTempSections().catch(err => {
+    if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+      responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+    }
+  })
+
   responseHelper.success(ctx, [], 200);
 }
 

@@ -135,8 +135,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
             page_id: pageId,
           }
 
-          const { apiContent, content, request_url } = pageItem
-          const subtitles = []; // TODO.EXTRACT SUBTITLES FROM HTML
+          const { apiContent, content, request_url, subtitles } = pageItem
           const pageContent = content ? JSON.stringify(content) : '';
           const api_content = apiContent ? JSON.stringify(apiContent) : '';
           const requestUrl = apiContent ? request_url : null;

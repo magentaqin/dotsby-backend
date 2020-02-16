@@ -50,11 +50,13 @@ const dropTempSections = () => {
 }
 
 const queryText = (search_string, limit) => {
-  const sql = `SELECT page_id, title, content
+  const sql = `SELECT page_id, title, content, section_id
     FROM pages
     WHERE section_id IN (SELECT * FROM temp_sections)
     AND (title LIKE ${mysql.escape(`%${search_string}%`)}
-    OR content LIKE ${mysql.escape(`%${search_string}%`)}) LIMIT ${mysql.escape(limit)}`;
+    OR content LIKE ${mysql.escape(`%${search_string}%`)})
+    ORDER BY title ASC
+    LIMIT ${mysql.escape(limit)}`;
   return new Promise((resolve, reject) => {
     dbConnection.query(sql, (error, results) => {
       if (error) {

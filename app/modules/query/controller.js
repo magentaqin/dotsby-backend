@@ -20,6 +20,7 @@ const notFoundMsg = GlobalErr[GlobalErrorCodes.NOT_FOUND];
 
 const listQueryResults = async(ctx) => {
   let limit = 5;
+  const data = {};
   if (ctx.request.query.limit) {
     limit = Number(ctx.request.query.limit)
     ctx.request.query.limit = limit
@@ -61,7 +62,18 @@ const listQueryResults = async(ctx) => {
         responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
       }
     })
-    console.log('RESP', resp.data)
+    data.query_type = 'TEXT'
+    data.items = resp.data.map(matchedItem => {
+      const {section_id, page_id, title, content } = matchedItem;
+      const matchedIndex = content.indexOf(search_string);
+      const slicedContent = content.slice(matchedIndex - 100, matchedIndex) + content.slice(matchedIndex, matchedIndex + 100)
+      return {
+        section_id,
+        page_id,
+        page_title: title,
+        content: slicedContent,
+      }
+    })
   }
 
   // drop temp sections table
@@ -71,7 +83,7 @@ const listQueryResults = async(ctx) => {
     }
   })
 
-  responseHelper.success(ctx, [], 200);
+  responseHelper.success(ctx, data, 200);
 }
 
 module.exports = {

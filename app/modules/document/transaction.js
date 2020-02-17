@@ -46,7 +46,7 @@ const insertSectionsQuery = (sections) => {
 }
 
 const insertPagesQuery = (pages) => {
-  const sql = 'INSERT INTO pages(page_id,title,is_root_path,path, content, api_content, request_url, subtitles, created_at,updated_at,section_id) VALUES ? ';
+  const sql = 'INSERT INTO pages(page_id,title,is_root_path,path, content, api_content, request_url, created_at,updated_at,section_id) VALUES ? ';
   return new Promise((resolve, reject) => {
     connection.query(sql, [pages], (error, results) => {
       if (error) {
@@ -135,11 +135,10 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
             page_id: pageId,
           }
 
-          const { apiContent, content, request_url, subtitles } = pageItem
+          const { apiContent, content, request_url } = pageItem
           const pageContent = content ? JSON.stringify(content) : '';
           const api_content = apiContent ? JSON.stringify(apiContent) : '';
           const requestUrl = apiContent ? request_url : null;
-          const stringifiedSubtitles = content ? JSON.stringify(subtitles) : null;
           pages.push([
             pageId,
             pageItem.title,
@@ -148,7 +147,6 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
             pageContent,
             api_content,
             requestUrl,
-            stringifiedSubtitles,
             now,
             now,
             sectionId,

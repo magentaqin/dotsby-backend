@@ -1,9 +1,13 @@
+/* eslint-disable no-loop-func */
+/* eslint-disable no-await-in-loop */
 const hashHelper = require('object-hash');
 const { formatUTCDatetime } = require('@app/utils/datetimehelper');
 const { formatApiItems } = require('@app/utils/apiItem');
 const connection = require('@app/db/init');
 const Logger = require('@app/utils/logger');
 const { GlobalErrorCodes } = require('@app/utils/errorMessages');
+const { transformToHTML } = require('@app/utils/transform');
+const { formatTitle } = require('@app/utils/extract')
 
 const insertNewDocQuery = (insertedDoc, document_id, user_id) => {
   const docInsertSql = `INSERT INTO docs(document_id,version,title,is_published,created_at,updated_at,user_id,email)
@@ -71,6 +75,7 @@ const insertApiItemsQuery = (apiItems) => {
   })
 }
 
+
 const publishTransaction = (docData, sectionData, isNewVersion) => {
   /**
    * config doc data
@@ -123,10 +128,13 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
       const pages = [];
       const sections = [];
       let apiItems = [];
-      sectionData.forEach((item, index) => {
-        const sectionId = hashHelper({ section_title: item.title, order_index: index, created_at: now });
+      for (let i = 0; i < sectionData.length; i++) {
+        const item = sectionData[i];
+        const sectionId = hashHelper({ section_title: item.title, order_index: i, created_at: now });
+        const basicPageInfo = [];
 
-        const basicPageInfo = item.pages.map(pageItem => {
+        for (let j = 0; j < item.pages.length; j++) {
+          const pageItem = item.pages[j];
           const pageId = hashHelper({ page_title: pageItem.title, path: pageItem.path, created_at: now });
           const pageObj = {
             title: pageItem.title,
@@ -134,9 +142,25 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
             path: pageItem.path,
             page_id: pageId,
           }
-
           const { apiContent, content, request_url } = pageItem
-          const pageContent = content ? JSON.stringify(content) : '';
+          let pageContent = '';
+          if (content) {
+            const htmlContent = await transformToHTML(content).catch(err => {
+              console.log('fail to transform markdown to html: ', err);
+              connection.rollback();
+            })
+            if (!htmlContent) {
+              return reject(new Error(GlobalErrorCodes.SERVER_ERROR));
+            }
+            try {
+              pageContent = formatTitle(htmlContent);
+              console.log(pageContent)
+            } catch (err) {
+              console.log('fail to format html content title: ', err);
+              connection.rollback();
+              return reject(new Error(GlobalErrorCodes.SERVER_ERROR));
+            }
+          }
           const api_content = apiContent ? JSON.stringify(apiContent) : '';
           const requestUrl = apiContent ? request_url : null;
           pages.push([
@@ -151,7 +175,6 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
             now,
             sectionId,
           ])
-
           if (apiContent) {
             const {
               request_headers, query_params, body, responses,
@@ -166,20 +189,19 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
               apiItems = apiItems.concat(responseHeaders, responseData);
             })
           }
-
-          return pageObj;
-        })
+          basicPageInfo.push(pageObj);
+        }
 
         sections.push([
           sectionId,
           item.title,
-          index,
+          i,
           JSON.stringify(basicPageInfo),
           now,
           now,
           fkDocId,
         ]);
-      })
+      }
 
 
       // insert rows to sections table

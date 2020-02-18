@@ -62,6 +62,19 @@ const insertPagesQuery = (pages) => {
   });
 }
 
+const insertAnchorPageQuery = (info) => {
+  const sql = `INSERT INTO anchor_pages(title, anchor, paragraph, created_at, updated_at, page_id, section_id)`
+  return new Promise((resolve, reject) => {
+    connection.query(sql, [info], (error, results) => {
+      if (error) {
+        Logger.error('insert anchor_pages err: ', error, info);
+        reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+      }
+      resolve({ data: results })
+    })
+  });
+}
+
 const insertApiItemsQuery = (apiItems) => {
   const sql = 'INSERT INTO api_items(displayName, description, category, created_at, updated_at, page_id) VALUES ? ';
   return new Promise((resolve, reject) => {

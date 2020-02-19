@@ -234,6 +234,8 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
         return reject(new Error(GlobalErrorCodes.SERVER_ERROR));
       }
 
+      // insert rows to anchor_pages table
+
       // insert rows to api_items table
       if (apiItems.length) {
         const apiItemInsertResp = await insertApiItemsQuery(apiItems).catch(() => {

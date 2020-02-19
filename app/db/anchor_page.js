@@ -1,6 +1,12 @@
 const anchorPageModel = `
   id int auto_increment,
-  title varchar(50) not null,
+  lv0 varchar(50),
+  lv1 varchar(50),
+  lv2 varchar(50),
+  lv3 varchar(50),
+  lv4 varchar(50),
+  lv5 varchar(50),
+  lv6 varchar(50),
   anchor varchar(50),
   paragraph text not null,
   created_at datetime not null,

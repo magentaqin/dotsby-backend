@@ -50,12 +50,20 @@ const dropTempSections = () => {
 }
 
 const queryText = (search_string, limit) => {
-  const sql = `SELECT page_id, title, content, section_id
-    FROM pages
+  const sql = `SELECT lv0, lv1, lv2, lv3, lv4, lv5, lv6, anchor, paragraph, page_id, section_id
+    FROM anchor_pages
     WHERE section_id IN (SELECT * FROM temp_sections)
-    AND (title LIKE ${mysql.escape(`%${search_string}%`)}
-    OR content LIKE ${mysql.escape(`%${search_string}%`)})
-    ORDER BY title ASC
+    AND (lv0 LIKE ${mysql.escape(`%${search_string}%`)}
+    OR lv1 LIKE ${mysql.escape(`%${search_string}%`)}
+    OR lv2 LIKE ${mysql.escape(`%${search_string}%`)}
+    OR lv3 LIKE ${mysql.escape(`%${search_string}%`)}
+    OR lv4 LIKE ${mysql.escape(`%${search_string}%`)}
+    OR lv5 LIKE ${mysql.escape(`%${search_string}%`)}
+    OR lv6 LIKE ${mysql.escape(`%${search_string}%`)}
+    OR paragraph LIKE ${mysql.escape(`%${search_string}%`)}
+    OR anchor LIKE ${mysql.escape(`%${search_string}%`)}
+    )
+    ORDER BY anchor ASC
     LIMIT ${mysql.escape(limit)}`;
   return new Promise((resolve, reject) => {
     dbConnection.query(sql, (error, results) => {

@@ -32,7 +32,9 @@ const listQueryResults = async(ctx) => {
     responseHelper.paramsFail(ctx, extractErrMsg(validationResult))
   }
 
-  const { document_id, version, query_type, search_string } = ctx.request.query;
+  const {
+    document_id, version, query_type, search_string,
+  } = ctx.request.query;
 
   // Get id of doc
   const docQueryResp = await queryIdOfDoc(document_id, version).catch(err => {
@@ -64,14 +66,30 @@ const listQueryResults = async(ctx) => {
     })
     data.query_type = 'TEXT'
     data.items = resp.data.map(matchedItem => {
-      const {section_id, page_id, title, content } = matchedItem;
-      const matchedIndex = content.indexOf(search_string);
-      const slicedContent = content.slice(matchedIndex - 100, matchedIndex) + content.slice(matchedIndex, matchedIndex + 100)
+      const {
+        section_id, page_id, paragraph, lv0, lv1, lv2, lv3, lv4, lv5, lv6,
+      } = matchedItem;
+      const searchRegx = new RegExp(search_string, 'i')
+      let slicedContent = '';
+      const page_title = lv0 || '';
+      let anchor = '';
+      const isTitleMatched = lv0 && lv0.search(searchRegx) !== -1
+      const isParaMatched = paragraph.search(searchRegx) !== -1
+      if (!isTitleMatched) {
+        anchor = matchedItem.anchor || lv6 || lv5 || lv4 || lv3 || lv2 || lv1;
+        if (isParaMatched) {
+          const matchedIndex = paragraph.indexOf(search_string);
+          const startIndex = matchedIndex - 100 >= 0 ? matchedIndex - 100 : 0;
+          slicedContent = paragraph.slice(startIndex, matchedIndex) + paragraph.slice(matchedIndex, matchedIndex + 100)
+        }
+      }
       return {
         section_id,
         page_id,
-        page_title: title,
+        page_title,
+        anchor,
         content: slicedContent,
+        search_string,
       }
     })
   }

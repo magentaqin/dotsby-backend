@@ -1,5 +1,5 @@
 const anchorPageModel = `
-  id int auto_increment,
+  id int primary key auto_increment,
   lv0 varchar(50),
   lv1 varchar(50),
   lv2 varchar(50),
@@ -13,8 +13,6 @@ const anchorPageModel = `
   updated_at datetime not null,
   page_id varchar(255) not null,
   section_id varchar(255) not null,
-  unique key(id),
-  primary key(page_id),
   constraint fk_anchor_pages_sections_section_id foreign key (section_id) references sections(section_id) on update cascade on delete cascade
 `;
 

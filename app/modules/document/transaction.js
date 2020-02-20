@@ -63,7 +63,8 @@ const insertPagesQuery = (pages) => {
 }
 
 const insertAnchorPageQuery = (info) => {
-  const sql = `INSERT INTO anchor_pages(title, anchor, paragraph, created_at, updated_at, page_id, section_id)`
+  const sql = `INSERT INTO anchor_pages(lv0, lv1, lv2, lv3, lv4, lv5, lv6,
+    anchor, paragraph, created_at, updated_at, page_id, section_id) VALUES ?`;
   return new Promise((resolve, reject) => {
     connection.query(sql, [info], (error, results) => {
       if (error) {
@@ -264,6 +265,12 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
       }
 
       // insert rows to anchor_pages table
+      const anchorInsertResp = await insertAnchorPageQuery(anchorPairs).catch(() => {
+        connection.rollback();
+      })
+      if (!anchorInsertResp) {
+        return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+      }
 
       // insert rows to api_items table
       if (apiItems.length) {
@@ -274,9 +281,6 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
           return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
         }
       }
-
-      connection.rollback();
-      return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
 
       connection.commit((commitErr) => {
         if (commitErr) {

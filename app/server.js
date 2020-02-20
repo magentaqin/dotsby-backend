@@ -9,6 +9,7 @@ const createDocTable = require('@app/db/doc');
 const createSectionTable = require('@app/db/section');
 const createPageTable = require('@app/db/page');
 const createApiItemTable = require('@app/db/api_item');
+const createAnchorPageTable = require('@app/db/anchor_page');
 
 const Logger = require('./utils/logger')
 const datetimeHelper = require('./utils/datetimehelper')
@@ -104,6 +105,7 @@ const startServer = async() => {
       dbConnection.query(createDocTable, (err) => err && handleDatabaseErr('docs', err));
       dbConnection.query(createSectionTable, (err) => err && handleDatabaseErr('sections', err));
       dbConnection.query(createPageTable, (err) => err && handleDatabaseErr('pages', err));
+      dbConnection.query(createAnchorPageTable, (err) => err && handleDatabaseErr('anchor_pages', err));
       dbConnection.query(createApiItemTable, (err) => err && handleDatabaseErr('api_items', err));
 
 

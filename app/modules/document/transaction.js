@@ -7,7 +7,7 @@ const connection = require('@app/db/init');
 const Logger = require('@app/utils/logger');
 const { GlobalErrorCodes } = require('@app/utils/errorMessages');
 const { transformToHTML } = require('@app/utils/transform');
-const { formatTitle } = require('@app/utils/extract')
+const { formatTitle, pairParagraphWithAnchor } = require('@app/utils/extract')
 
 const insertNewDocQuery = (insertedDoc, document_id, user_id) => {
   const docInsertSql = `INSERT INTO docs(document_id,version,title,is_published,created_at,updated_at,user_id,email)
@@ -88,6 +88,27 @@ const insertApiItemsQuery = (apiItems) => {
   })
 }
 
+const getAnchorPairs = (htmlContent, now, page_id, section_id) => {
+  return pairParagraphWithAnchor(htmlContent).map(item => {
+    const { lv0, lv1, lv2, lv3, lv4, lv5, lv6, anchor, paragraph } = item;
+    return [
+      lv0,
+      lv1,
+      lv2,
+      lv3,
+      lv4,
+      lv5,
+      lv6,
+      anchor,
+      paragraph,
+      now,
+      now,
+      page_id,
+      section_id,
+    ]
+  })
+}
+
 
 const publishTransaction = (docData, sectionData, isNewVersion) => {
   /**
@@ -141,6 +162,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
       const pages = [];
       const sections = [];
       let apiItems = [];
+      let anchorPairs = [];
       for (let i = 0; i < sectionData.length; i++) {
         const item = sectionData[i];
         const sectionId = hashHelper({ section_title: item.title, order_index: i, created_at: now });
@@ -167,9 +189,9 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
             }
             try {
               pageContent = formatTitle(htmlContent);
-              console.log(pageContent)
+              anchorPairs = getAnchorPairs(htmlContent, now, pageId, sectionId);
             } catch (err) {
-              console.log('fail to format html content title: ', err);
+              console.log('fail to format html content title or pair anchor: ', err);
               connection.rollback();
               return reject(new Error(GlobalErrorCodes.SERVER_ERROR));
             }
@@ -189,6 +211,13 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
             sectionId,
           ])
           if (apiContent) {
+            try {
+              anchorPairs.push(getAnchorPairs(`<h1>${pageItem.title}</h1>`, now, pageId, sectionId)[0])
+            } catch (err) {
+              console.log('fail to pair api content anchor: ', err)
+              connection.rollback();
+              return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+            }
             const {
               request_headers, query_params, body, responses,
             } = apiContent;
@@ -245,6 +274,9 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
           return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
         }
       }
+
+      connection.rollback();
+      return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
 
       connection.commit((commitErr) => {
         if (commitErr) {

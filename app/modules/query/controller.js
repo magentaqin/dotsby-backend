@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
 const responseHelper = require('@app/utils/response')
 const { extractErrMsg } = require('@app/utils/extract')
 const { Validator } = require('jsonschema')
@@ -11,6 +13,8 @@ const {
   createTempSections,
   dropTempSections,
   queryText,
+  queryPageTitle,
+  querySectionTitle,
 } = require('./query')
 
 const validator = new Validator();
@@ -65,14 +69,16 @@ const listQueryResults = async(ctx) => {
       }
     })
     data.query_type = 'TEXT'
-    data.items = resp.data.map(matchedItem => {
+    const matchedItems = [];
+    for (const matchedItem of resp.data) {
       const {
         section_id, page_id, paragraph, lv0, lv1, lv2, lv3, lv4, lv5, lv6,
       } = matchedItem;
       const searchRegx = new RegExp(search_string, 'i')
       let slicedContent = '';
-      const page_title = lv0 || '';
+      let page_title = lv0 || '';
       let anchor = '';
+      let section_title = '';
       const isTitleMatched = lv0 && lv0.search(searchRegx) !== -1
       const isParaMatched = paragraph.search(searchRegx) !== -1
       if (!isTitleMatched) {
@@ -80,18 +86,40 @@ const listQueryResults = async(ctx) => {
         if (isParaMatched) {
           const matchedIndex = paragraph.indexOf(search_string);
           const startIndex = matchedIndex - 100 >= 0 ? matchedIndex - 100 : 0;
+          // eslint-disable-next-line max-len
           slicedContent = paragraph.slice(startIndex, matchedIndex) + paragraph.slice(matchedIndex, matchedIndex + 100)
         }
       }
-      return {
+      if (!page_title) {
+        const resp = await queryPageTitle(page_id).catch(err => {
+          if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+            responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+          }
+        })
+        if (resp.data.length) {
+          page_title = resp.data[0].title;
+        }
+      }
+
+      const sectionTitleResp = await querySectionTitle(section_id).catch(err => {
+        if (err.message === GlobalErrorCodes.SERVER_ERROR) {
+          responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
+        }
+      })
+      if (sectionTitleResp.data.length) {
+        section_title = sectionTitleResp.data[0].title;
+      }
+      matchedItems.push({
         section_id,
         page_id,
         page_title,
+        section_title,
         anchor,
         content: slicedContent,
         search_string,
-      }
-    })
+      })
+    }
+    data.items = matchedItems;
   }
 
   // drop temp sections table

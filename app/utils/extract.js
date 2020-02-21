@@ -72,7 +72,7 @@ const pairParagraphWithAnchor = (htmlString) => {
           } else {
             model[`lv${level}`] = flattenedCurrent;
           }
-          if (level === 6 && model.lv0 !== current) {
+          if (level === 6 && !titleRegx.test(current)) {
             model.anchor = flattenedCurrent;
           }
         }

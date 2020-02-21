@@ -76,9 +76,37 @@ const queryText = (search_string, limit) => {
   })
 }
 
+const querySectionTitle = (section_id) => {
+  const sql = `SELECT title from sections WHERE section_id=${mysql.escape(section_id)}`
+  return new Promise((resolve, reject) => {
+    dbConnection.query(sql, (error, results) => {
+      if (error) {
+        Logger.error('query section title error: ', error)
+        reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+      }
+      resolve({ data: results })
+    })
+  })
+}
+
+const queryPageTitle = (page_id) => {
+  const sql = `SELECT title from pages WHERE page_id=${mysql.escape(page_id)}`;
+  return new Promise((resolve, reject) => {
+    dbConnection.query(sql, (error, results) => {
+      if (error) {
+        Logger.error('query page title error: ', error)
+        reject(new Error(GlobalErrorCodes.SERVER_ERROR))
+      }
+      resolve({ data: results })
+    })
+  })
+}
+
 module.exports = {
   queryText,
   queryIdOfDoc,
   createTempSections,
   dropTempSections,
+  querySectionTitle,
+  queryPageTitle,
 }

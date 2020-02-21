@@ -190,7 +190,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
             }
             try {
               pageContent = formatTitle(htmlContent);
-              anchorPairs = getAnchorPairs(htmlContent, now, pageId, sectionId);
+              anchorPairs = anchorPairs.concat(getAnchorPairs(htmlContent, now, pageId, sectionId));
             } catch (err) {
               console.log('fail to format html content title or pair anchor: ', err);
               connection.rollback();

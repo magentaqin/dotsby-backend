@@ -63,7 +63,6 @@ const getPageInfo = async(ctx) => {
   data.api_content = data.api_content ? JSON.parse(data.api_content) : data.api_content;
   data.created_at = formatUTCDatetime(data.created_at, true);
   data.updated_at = formatUTCDatetime(data.updated_at, true);
-  console.log(data.content)
   responseHelper.success(ctx, data, 200)
 }
 

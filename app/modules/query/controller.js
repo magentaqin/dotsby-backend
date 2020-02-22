@@ -6,6 +6,7 @@ const { Validator } = require('jsonschema')
 const {
   GlobalErrorCodes, GlobalErr,
 } = require('@app/utils/errorMessages');
+const { findAnchor } = require('@app/utils/regx');
 const querySchema = require('@schema/src/apis/query_params')
 
 const {
@@ -68,6 +69,7 @@ const listQueryResults = async(ctx) => {
         responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
       }
     })
+    console.log(resp.data)
     data.query_type = 'TEXT'
     const matchedItems = [];
     for (const matchedItem of resp.data) {
@@ -82,12 +84,14 @@ const listQueryResults = async(ctx) => {
       const isTitleMatched = lv0 && lv0.search(searchRegx) !== -1
       const isParaMatched = paragraph.search(searchRegx) !== -1
       if (!isTitleMatched) {
-        anchor = matchedItem.anchor || lv6 || lv5 || lv4 || lv3 || lv2 || lv1;
         if (isParaMatched) {
+          anchor = matchedItem.anchor;
           const matchedIndex = paragraph.indexOf(search_string);
           const startIndex = matchedIndex - 100 >= 0 ? matchedIndex - 100 : 0;
           // eslint-disable-next-line max-len
           slicedContent = paragraph.slice(startIndex, matchedIndex) + paragraph.slice(matchedIndex, matchedIndex + 100)
+        } else {
+          anchor = findAnchor(searchRegx, [lv6, lv5, lv4, lv3, lv2, lv1])
         }
       }
       if (!page_title) {

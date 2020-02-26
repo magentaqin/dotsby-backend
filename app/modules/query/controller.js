@@ -69,7 +69,7 @@ const listQueryResults = async(ctx) => {
         responseHelper.fail(ctx, GlobalErrorCodes.SERVER_ERROR, serverErrMsg, 500);
       }
     })
-    console.log(resp.data)
+    // console.log(resp.data)
     data.query_type = 'TEXT'
     const matchedItems = [];
     for (const matchedItem of resp.data) {

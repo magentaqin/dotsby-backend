@@ -17,11 +17,6 @@ WORKDIR /usr/src/app
 COPY ["package.json", "yarn.lock", "./"]
 RUN yarn install
 
-# git submodule init and update
-RUN git init
-RUN git submodule init
-RUN git submodule update --remote
-
 # Bundle app source
 COPY . .
 

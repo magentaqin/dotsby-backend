@@ -91,7 +91,7 @@ let server = null
 const startServer = async() => {
   server = app.listen(config.port)
   if (server.listening) {
-    Logger.info(`Server started at ${config.localhost}:${config.port}`)
+    Logger.info(`Server started at ${config.host}:${config.port}`)
     dbConnection.connect((err) => {
       if (err) {
         Logger.error('DB connection error: ', err.message);

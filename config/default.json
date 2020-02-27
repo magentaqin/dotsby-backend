@@ -1,7 +1,0 @@
-{
-  "productionEnvs": ["staging", "production"],
-  "port": 4000,
-  "localhost": "127.0.0.1",
-  "apiPrefix": "/api/v1",
-  "jwt_secret_key": "LNurHStisFDRqYX4DD2N8lPHy5eiyHvNOZkE2PHO"
-}

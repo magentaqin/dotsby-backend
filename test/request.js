@@ -4,7 +4,7 @@ const qs = require('qs')
 const { GlobalErrorCodes, GlobalErr } = require('@app/utils/errorMessages')
 
 const client = axios.create({
-  baseURL: `http://localhost:${config.port}`,
+  baseURL: `http://${config.host}:${config.port}`,
   headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
   responseType: 'json',
   timeout: 20000,

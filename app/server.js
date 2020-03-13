@@ -3,13 +3,7 @@ const bodyParser = require('koa-bodyparser')
 const config = require('config')
 const cors = require('@koa/cors');
 
-const dbConnection = require('@app/db/init');
-const createUserTable = require('@app/db/user');
-const createDocTable = require('@app/db/doc');
-const createSectionTable = require('@app/db/section');
-const createPageTable = require('@app/db/page');
-const createApiItemTable = require('@app/db/api_item');
-const createAnchorPageTable = require('@app/db/anchor_page');
+const { dbConnection, connectDB, reconnect } = require('@app/db/init');
 
 const Logger = require('./utils/logger')
 const datetimeHelper = require('./utils/datetimehelper')
@@ -46,11 +40,6 @@ const debugLogger = (ctx, ms) => {
 
   Logger.debug(logString)
 }
-
-const handleDatabaseErr = (tableName, err) => {
-  Logger.error(`Fail to create ${tableName} table`, err.message);
-}
-
 
 const app = new Koa();
 
@@ -92,33 +81,24 @@ const startServer = async() => {
   server = app.listen(config.port)
   if (server.listening) {
     Logger.info(`Server started at ${config.host}:${config.port}`)
-    dbConnection.connect((err) => {
-      if (err) {
-        Logger.error('DB connection error: ', err.message);
-        return;
+    const isConnected = await connectDB().catch((err) => {
+      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+        reconnect();
       }
-
-      Logger.info('Successfully connected to db.');
-
-      // create tables
-      dbConnection.query(createUserTable, (err) => err && handleDatabaseErr('users', err));
-      dbConnection.query(createDocTable, (err) => err && handleDatabaseErr('docs', err));
-      dbConnection.query(createSectionTable, (err) => err && handleDatabaseErr('sections', err));
-      dbConnection.query(createPageTable, (err) => err && handleDatabaseErr('pages', err));
-      dbConnection.query(createAnchorPageTable, (err) => err && handleDatabaseErr('anchor_pages', err));
-      dbConnection.query(createApiItemTable, (err) => err && handleDatabaseErr('api_items', err));
-
-
+    });
+    if (isConnected) {
       app.use(bodyParser({ strict: true }));
 
       // only allow in dev mode.
-      const corsOptions = {
-        origin: '*',
+      if (config.env === 'development') {
+        const corsOptions = {
+          origin: '*',
+        }
+        app.use(cors(corsOptions))
       }
-      app.use(cors(corsOptions))
 
       app.use(routers);
-    })
+    }
   }
   server.on('close', () => {
     dbConnection.end((err) => {

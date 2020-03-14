@@ -3,11 +3,13 @@
 const hashHelper = require('object-hash');
 const { formatUTCDatetime } = require('@app/utils/datetimehelper');
 const { formatApiItems } = require('@app/utils/apiItem');
-const connection = require('@app/db/init');
+const dbInitializer = require('@app/db/init');
 const Logger = require('@app/utils/logger');
 const { GlobalErrorCodes } = require('@app/utils/errorMessages');
 const { transformToHTML } = require('@app/utils/transform');
 const { formatTitle, pairParagraphWithAnchor } = require('@app/utils/extract')
+
+const connection = dbInitializer.dbConnection;
 
 const insertNewDocQuery = (insertedDoc, document_id, user_id) => {
   const docInsertSql = `INSERT INTO docs(document_id,version,title,is_published,created_at,updated_at,user_id,email)

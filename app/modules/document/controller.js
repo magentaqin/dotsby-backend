@@ -143,9 +143,12 @@ const publishDocument = async(ctx) => {
     })
   }
 
-  const data = {
-    document_id: resp.document_id,
-    version: resp.version,
+  let data = {};
+  if (resp) {
+    data = {
+      document_id: resp.document_id,
+      version: resp.version,
+    }
   }
 
   responseHelper.success(ctx, data, 200)

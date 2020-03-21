@@ -1,7 +1,9 @@
 const mysql = require('mysql');
-const { dbConnection } = require('@app/db/init');
+const db = require('@app/db/init');
 const Logger = require('@app/utils/logger');
 const { GlobalErrorCodes } = require('@app/utils/errorMessages');
+
+const dbConnection = db.connection;
 
 const queryIdOfDoc = (document_id, version) => {
   const sql = `SELECT id, updated_at FROM docs

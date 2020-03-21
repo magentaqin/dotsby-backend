@@ -2,8 +2,7 @@ const Koa = require('koa')
 const bodyParser = require('koa-bodyparser')
 const config = require('config')
 const cors = require('@koa/cors');
-
-const { dbConnection, connectDB, reconnect } = require('@app/db/init');
+const db = require('@app/db/init');
 
 const Logger = require('./utils/logger')
 const datetimeHelper = require('./utils/datetimehelper')
@@ -81,9 +80,9 @@ const startServer = async() => {
   server = app.listen(config.port)
   if (server.listening) {
     Logger.info(`Server started at ${config.host}:${config.port}`)
-    const isConnected = await connectDB().catch((err) => {
+    const isConnected = await db.connectDB().catch((err) => {
       if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-        reconnect();
+        db.reconnect();
       }
     });
     if (isConnected) {
@@ -101,13 +100,7 @@ const startServer = async() => {
     }
   }
   server.on('close', () => {
-    dbConnection.end((err) => {
-      if (err) {
-        Logger.error('DB close err: ', err.message)
-        return;
-      }
-      Logger.info('Server Stopped Successfully.')
-    })
+    db.endConnection();
   })
 }
 

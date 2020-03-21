@@ -13,63 +13,84 @@ const {
   host, user, password, database, port,
 } = config.db;
 
-const connection = mysql.createConnection({
-  host,
-  user,
-  password,
-  database,
-  port,
-});
-
 const handleDatabaseErr = (tableName, err) => {
   Logger.error(`Fail to create ${tableName} table`, err.message);
 }
 
-const createTables = () => {
-  connection.query(createUserTable, (err) => err && handleDatabaseErr('users', err));
-  connection.query(createDocTable, (err) => err && handleDatabaseErr('docs', err));
-  connection.query(createSectionTable, (err) => err && handleDatabaseErr('sections', err));
-  connection.query(createPageTable, (err) => err && handleDatabaseErr('pages', err));
-  connection.query(createAnchorPageTable, (err) => err && handleDatabaseErr('anchor_pages', err));
-  connection.query(createApiItemTable, (err) => err && handleDatabaseErr('api_items', err));
-}
+class DBInitializer {
+  constructor() {
+    this.connection = this.getConnection()
+  }
 
-const reconnect = () => {
-  console.log('reconnecting...')
-  connection.connect((error) => {
-    if (error) {
-      Logger.error('DB connection error: ', error.message);
-    }
-    Logger.info('Successfully connected to db.');
-    createTables();
-  })
-}
+  // create new connection and add error listener to it.
+  getConnection = () => {
+    const connection = mysql.createConnection({
+      host,
+      user,
+      password,
+      database,
+      port,
+    });
+    connection.on('error', (err) => {
+      Logger.error('DB Connection error: ', err.message);
+      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+        reconnect();
+      }
+    })
+    return connection;
+  }
 
-const connectDB = () => {
-  return new Promise((resolve, reject) => {
+  connectDB = () => {
+    return new Promise((resolve, reject) => {
+      this.connection.connect((error) => {
+        if (error) {
+          Logger.error('DB connection error: ', error.message);
+          reject(error)
+        }
+
+        Logger.info('Successfully connected to db.');
+        this.createTables();
+
+        resolve(true)
+      });
+    })
+  }
+
+  reconnect = () => {
+    console.log('reconnecting...')
+    // recreate new connection
+    const connection = this.getConnection()
     connection.connect((error) => {
       if (error) {
-        Logger.error('DB connection error: ', error.message);
-        reject(error)
+        return Logger.error('DB connection error: ', error.message);
       }
-
+      this.connection = connection;
       Logger.info('Successfully connected to db.');
       createTables();
-
-      resolve(true)
-    });
-  })
-}
-
-connection.on('error', (err) => {
-  Logger.error('DB Connection error: ', err.message);
-  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-    reconnect();
+    })
   }
-})
 
-module.exports = {
-  dbConnection: connection,
-  connectDB,
-  reconnect,
+  createTables = () => {
+    this.connection.query(createUserTable, (err) => err && handleDatabaseErr('users', err));
+    this.connection.query(createDocTable, (err) => err && handleDatabaseErr('docs', err));
+    this.connection.query(createSectionTable, (err) => err && handleDatabaseErr('sections', err));
+    this.connection.query(createPageTable, (err) => err && handleDatabaseErr('pages', err));
+    this.connection.query(createAnchorPageTable, (err) => err && handleDatabaseErr('anchor_pages', err));
+    this.connection.query(createApiItemTable, (err) => err && handleDatabaseErr('api_items', err));
+  }
+
+  endCollection = () => {
+    this.dbConnection.end((err) => {
+      if (err) {
+        Logger.error('DB close err: ', err.message)
+        return;
+      }
+      Logger.info('Server Stopped Successfully.')
+    })
+  }
+
 }
+
+const db = new DBInitializer();
+
+module.exports = db;

@@ -8,12 +8,13 @@ const { extractErrMsg } = require('@app/utils/extract')
 const signUpQuerySchema = require('@schema/src/apis/user_signup_params')
 const loginQuerySchema = require('@schema/src/apis/user_login_params')
 const { GlobalErrorCodes, GlobalErr, UserErrorCodes, UserErr } = require('@app/utils/errorMessages');
-const { dbConnection } = require('@app/db/init');
+const db = require('@app/db/init');
 const Logger = require('@app/utils/logger');
 const { formatUTCDatetime } = require('@app/utils/datetimehelper')
 const Token = require('@app/utils/token')
 
 const validator = new Validator()
+const dbConnection = db.connection;
 const serverErrMsg = GlobalErr[GlobalErrorCodes.SERVER_ERROR]
 const authFailMsg = GlobalErr[GlobalErrorCodes.AUTH_FAILED];
 const { EMAIL_ALREADY_EXISTED, EMAIL_NOT_EXIST, EMAIL_PASSWORD_NOT_MATCH } = UserErrorCodes

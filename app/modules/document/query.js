@@ -1,8 +1,10 @@
 const mysql = require('mysql');
 const { formatUTCDatetime } = require('@app/utils/datetimehelper');
-const { dbConnection } = require('@app/db/init');
+const db = require('@app/db/init');
 const Logger = require('@app/utils/logger');
 const { GlobalErrorCodes } = require('@app/utils/errorMessages');
+
+const dbConnection = db.connection;
 
 const createDocQuery = (data) => {
   const { document_id, version, title, user_id, email } = data;

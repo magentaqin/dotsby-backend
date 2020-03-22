@@ -34,7 +34,7 @@ class DBInitializer {
     connection.on('error', (err) => {
       Logger.error('DB Connection error: ', err.message);
       if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-        reconnect();
+        this.reconnect();
       }
     })
     return connection;

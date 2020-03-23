@@ -66,7 +66,7 @@ class DBInitializer {
       }
       this.connection = connection;
       Logger.info('Successfully connected to db.');
-      createTables();
+      this.createTables();
     })
   }
 

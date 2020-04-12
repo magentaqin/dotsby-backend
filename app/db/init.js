@@ -32,7 +32,7 @@ class DBInitializer {
       port,
     });
     connection.on('error', (err) => {
-      Logger.error('DB Connection error: ', err.message);
+      Logger.error('DB error: ', err.message);
       if (err.code === 'PROTOCOL_CONNECTION_LOST') {
         this.reconnect();
       }
@@ -44,29 +44,29 @@ class DBInitializer {
     return new Promise((resolve, reject) => {
       this.connection.connect((error) => {
         if (error) {
-          Logger.error('DB connection error: ', error.message);
-          reject(error)
+          Logger.error('DB connection error: ', error.code, error.message);
+          return reject(error)
         }
 
         Logger.info('Successfully connected to db.');
         this.createTables();
 
-        resolve(true)
+        resolve(true);
       });
     })
   }
 
   reconnect = () => {
     console.log('reconnecting...')
+    // destroy old connection
+    this.connection && this.connection.destroy();
     // recreate new connection
-    const connection = this.getConnection()
-    connection.connect((error) => {
+    this.connection = this.getConnection();
+    this.connection.connect((error) => {
       if (error) {
-        return Logger.error('DB connection error: ', error.message);
+        return Logger.error('DB reconnect error: ', error.code, error.message);
       }
-      this.connection = connection;
       Logger.info('Successfully connected to db.');
-      this.createTables();
     })
   }
 
@@ -80,10 +80,9 @@ class DBInitializer {
   }
 
   endCollection = () => {
-    this.dbConnection.end((err) => {
+    this.connection.end((err) => {
       if (err) {
-        Logger.error('DB close err: ', err.message)
-        return;
+        return Logger.error('DB close err: ', err.message)
       }
       Logger.info('Server Stopped Successfully.')
     })

@@ -80,11 +80,7 @@ const startServer = async() => {
   server = app.listen(config.port)
   if (server.listening) {
     Logger.info(`Server started at ${config.host}:${config.port}`)
-    const isConnected = await db.connectDB().catch((err) => {
-      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-        db.reconnect();
-      }
-    });
+    const isConnected = await db.connectDB().catch(err => err);
     if (isConnected) {
       app.use(bodyParser({ strict: true }));
 

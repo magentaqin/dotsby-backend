@@ -32,10 +32,8 @@ class DBInitializer {
       port,
     });
     connection.on('error', (err) => {
-      Logger.error('DB error: ', err.message);
-      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-        this.reconnect();
-      }
+      Logger.error('DB error: ', err);
+      this.reconnect();
     })
     return connection;
   }
@@ -66,7 +64,7 @@ class DBInitializer {
       if (error) {
         return Logger.error('DB reconnect error: ', error.code, error.message);
       }
-      Logger.info('Successfully connected to db.');
+      Logger.info('Successfully re-connected to db.');
     })
   }
 

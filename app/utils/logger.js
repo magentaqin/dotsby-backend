@@ -2,6 +2,7 @@ const chalk = require('chalk')
 const config = require('config')
 const fs = require('fs')
 const path = require('path')
+const datetimeHelper = require('./datetimehelper')
 
 const { env, productionEnvs } = config;
 
@@ -39,7 +40,7 @@ class Logger {
 
 
   static info(...msg) {
-    const log = msg.join(' ')
+    const log = `${datetimeHelper.formatUTCDatetime()} ${msg.join(' ')}`
     if (this.isProd) {
       this.accessStream.write(`${log}\n`)
       return
@@ -59,7 +60,7 @@ class Logger {
   }
 
   static error(...msg) {
-    const log = msg.join(' ')
+    const log = `${datetimeHelper.formatUTCDatetime()} ${msg.join(' ')}`;
     if (this.isProd) {
       this.errorStream.write(`${log}\n`)
       return

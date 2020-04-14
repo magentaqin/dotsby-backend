@@ -11,7 +11,7 @@ const queryIdOfDoc = (document_id, version) => {
     AND version = ${mysql.escape(version)}
     AND is_published = true`;
   return new Promise((resolve, reject) => {
-    dbConnection.query(sql, (error, results) => {
+    dbConnection.instance.query(sql, (error, results) => {
       if (error) {
         Logger.error('query id of doc error: ', error)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -28,7 +28,7 @@ const createTempSections = (fkDocId, updated_at) => {
     AND created_at = ${mysql.escape(updated_at)}`;
 
   return new Promise((resolve, reject) => {
-    dbConnection.query(sql, (error, results) => {
+    dbConnection.instance.query(sql, (error, results) => {
       if (error) {
         Logger.error('create temp sections error: ', error)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -41,7 +41,7 @@ const createTempSections = (fkDocId, updated_at) => {
 const dropTempSections = () => {
   const sql = 'DROP TEMPORARY TABLE temp_sections';
   return new Promise((resolve, reject) => {
-    dbConnection.query(sql, (error, results) => {
+    dbConnection.instance.query(sql, (error, results) => {
       if (error) {
         Logger.error('drop temp sections error: ', error)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -68,7 +68,7 @@ const queryText = (search_string, limit) => {
     ORDER BY anchor ASC
     LIMIT ${mysql.escape(limit)}`;
   return new Promise((resolve, reject) => {
-    dbConnection.query(sql, (error, results) => {
+    dbConnection.instance.query(sql, (error, results) => {
       if (error) {
         Logger.error('query text error: ', error)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -81,7 +81,7 @@ const queryText = (search_string, limit) => {
 const querySectionTitle = (section_id) => {
   const sql = `SELECT title from sections WHERE section_id=${mysql.escape(section_id)}`
   return new Promise((resolve, reject) => {
-    dbConnection.query(sql, (error, results) => {
+    dbConnection.instance.query(sql, (error, results) => {
       if (error) {
         Logger.error('query section title error: ', error)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -94,7 +94,7 @@ const querySectionTitle = (section_id) => {
 const queryPageTitle = (page_id) => {
   const sql = `SELECT title from pages WHERE page_id=${mysql.escape(page_id)}`;
   return new Promise((resolve, reject) => {
-    dbConnection.query(sql, (error, results) => {
+    dbConnection.instance.query(sql, (error, results) => {
       if (error) {
         Logger.error('query page title error: ', error)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))

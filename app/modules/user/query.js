@@ -6,7 +6,7 @@ const { GlobalErrorCodes } = require('@app/utils/errorMessages');
 const queryUserById = (id) => {
   const sql = `SELECT * FROM users WHERE id = ${mysql.escape(id)}` ;
   return new Promise((resolve, reject) => {
-    db.connection.query(sql, (error, results) => {
+    db.connection.instance.query(sql, (error, results) => {
       if (error) {
         Logger.error('query user by id error', error)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))

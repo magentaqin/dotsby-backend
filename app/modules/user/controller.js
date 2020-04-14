@@ -29,7 +29,7 @@ const generateToken = (userId, email) => {
 const checkEmail = (email) => {
   const sql = `SELECT * FROM users WHERE email = ${mysql.escape(email)}`;
   return new Promise((resolve, reject) => {
-    dbConnection.query(sql, (error, results) => {
+    dbConnection.instance.query(sql, (error, results) => {
       if (error) {
         Logger.error('check email err', error)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -49,7 +49,7 @@ const createUser = (data) => {
                VALUES(?,?,?,?,?)`;
   const user = [email, password_hash, now, now, now];
   return new Promise((resolve, reject) => {
-    dbConnection.query(sql, user, (error, results) => {
+    dbConnection.instance.query(sql, user, (error, results) => {
       if (error) {
         Logger.error('insert new user err: ', error, email)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -62,7 +62,7 @@ const createUser = (data) => {
 const queryUserById = (id) => {
   const sql = `SELECT * FROM users WHERE id = ${mysql.escape(id)}` ;
   return new Promise((resolve, reject) => {
-    dbConnection.query(sql, (error, results) => {
+    dbConnection.instance.query(sql, (error, results) => {
       if (error) {
         Logger.error('query user by id error', error)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -75,7 +75,7 @@ const queryUserById = (id) => {
 const queryUserByEmail = (email) => {
   const sql = `SELECT * FROM users WHERE email = ${mysql.escape(email)}` ;
   return new Promise((resolve, reject) => {
-    dbConnection.query(sql, (error, results) => {
+    dbConnection.instance.query(sql, (error, results) => {
       if (error) {
         Logger.error('query user by email error', error)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -90,7 +90,7 @@ const updateLastLoginTime = (id) => {
   const sql = `UPDATE users SET last_login_at = ? WHERE id = ?`;
   const user = [now, id];
   return new Promise((resolve, reject) => {
-    dbConnection.query(sql, user, (error, results) => {
+    dbConnection.instance.query(sql, user, (error, results) => {
       if (error) {
         Logger.error('update last login time err: ', error, id)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))

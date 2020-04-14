@@ -15,7 +15,7 @@ const insertNewDocQuery = (insertedDoc, document_id, user_id) => {
   const docInsertSql = `INSERT INTO docs(document_id,version,title,is_published,created_at,updated_at,user_id,email)
                         VALUES(?,?,?,?,?,?,?,?)`;
   return new Promise((resolve, reject) => {
-    connection.query(docInsertSql, insertedDoc, (error, results) => {
+    connection.instance.query(docInsertSql, insertedDoc, (error, results) => {
       if (error) {
         Logger.error('insert new doc err: ', error, document_id, user_id)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -28,7 +28,7 @@ const insertNewDocQuery = (insertedDoc, document_id, user_id) => {
 const updateDocQuery = (updatedDoc, document_id, user_id) => {
   const docUpdateSql = 'UPDATE docs SET title = ?, updated_at = ?, is_published = ? WHERE id = ?';
   return new Promise((resolve, reject) => {
-    connection.query(docUpdateSql, updatedDoc, (error, results) => {
+    connection.instance.query(docUpdateSql, updatedDoc, (error, results) => {
       if (error) {
         Logger.error('update doc err: ', error, document_id, user_id)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -41,7 +41,7 @@ const updateDocQuery = (updatedDoc, document_id, user_id) => {
 const insertSectionsQuery = (sections) => {
   const sectionsInsertSql = 'INSERT INTO sections(section_id,title,order_index,page_info,created_at,updated_at,doc_id) VALUES ? ';
   return new Promise((resolve, reject) => {
-    connection.query(sectionsInsertSql, [sections], (error, results) => {
+    connection.instance.query(sectionsInsertSql, [sections], (error, results) => {
       if (error) {
         Logger.error('insert sections err: ', error, sections);
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -54,7 +54,7 @@ const insertSectionsQuery = (sections) => {
 const insertPagesQuery = (pages) => {
   const sql = 'INSERT INTO pages(page_id,title,is_root_path,path, content, api_content, request_url, created_at,updated_at,section_id) VALUES ? ';
   return new Promise((resolve, reject) => {
-    connection.query(sql, [pages], (error, results) => {
+    connection.instance.query(sql, [pages], (error, results) => {
       if (error) {
         Logger.error('insert pages err: ', error, pages);
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -68,7 +68,7 @@ const insertAnchorPageQuery = (info) => {
   const sql = `INSERT INTO anchor_pages(lv0, lv1, lv2, lv3, lv4, lv5, lv6,
     anchor, paragraph, created_at, updated_at, page_id, section_id) VALUES ?`;
   return new Promise((resolve, reject) => {
-    connection.query(sql, [info], (error, results) => {
+    connection.instance.query(sql, [info], (error, results) => {
       if (error) {
         Logger.error('insert anchor_pages err: ', error, info);
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -81,7 +81,7 @@ const insertAnchorPageQuery = (info) => {
 const insertApiItemsQuery = (apiItems) => {
   const sql = 'INSERT INTO api_items(displayName, description, category, created_at, updated_at, page_id) VALUES ? ';
   return new Promise((resolve, reject) => {
-    connection.query(sql, [apiItems], (error, results) => {
+    connection.instance.query(sql, [apiItems], (error, results) => {
       if (error) {
         Logger.error('insert api items err: ', error, apiItems);
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -125,7 +125,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
   const updatedDoc = [title, now, true, id_of_doc];
 
   return new Promise((resolve, reject) => {
-    connection.beginTransaction(async (err) => {
+    connection.instance.beginTransaction(async (err) => {
       if (err) {
         Logger.error('publish new doc transaction err: ', err)
         reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -141,7 +141,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
        */
       if (isNewVersion) {
         const resp = await insertNewDocQuery(insertedDoc, document_id, user_id).catch(() => {
-          connection.rollback();
+          connection.instance.rollback();
         });
         if (resp) {
           fkDocId = resp.data.insertId;
@@ -150,7 +150,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
         }
       } else {
         const resp = await updateDocQuery(updatedDoc, document_id, user_id).catch(() => {
-          connection.rollback();
+          connection.instance.rollback();
         })
         if (resp) {
           fkDocId = id_of_doc;
@@ -185,7 +185,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
           if (content) {
             const htmlContent = await transformToHTML(content).catch(err => {
               console.log('fail to transform markdown to html: ', err);
-              connection.rollback();
+              connection.instance.rollback();
             })
             if (!htmlContent) {
               return reject(new Error(GlobalErrorCodes.SERVER_ERROR));
@@ -195,7 +195,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
               anchorPairs = anchorPairs.concat(getAnchorPairs(htmlContent, now, pageId, sectionId));
             } catch (err) {
               console.log('fail to format html content title or pair anchor: ', err);
-              connection.rollback();
+              connection.instance.rollback();
               return reject(new Error(GlobalErrorCodes.SERVER_ERROR));
             }
           }
@@ -218,7 +218,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
               anchorPairs.push(getAnchorPairs(`<h1>${pageItem.title}</h1>`, now, pageId, sectionId)[0])
             } catch (err) {
               console.log('fail to pair api content anchor: ', err)
-              connection.rollback();
+              connection.instance.rollback();
               return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
             }
             const {
@@ -251,7 +251,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
 
       // insert rows to sections table
       const sectionInsertResp = await insertSectionsQuery(sections).catch(() => {
-        connection.rollback();
+        connection.instance.rollback();
       })
       if (!sectionInsertResp) {
         return reject(new Error(GlobalErrorCodes.SERVER_ERROR));
@@ -260,7 +260,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
 
       // insert rows to pages table
       const pageInsertResp = await insertPagesQuery(pages).catch(() => {
-        connection.rollback();
+        connection.instance.rollback();
       })
       if (!pageInsertResp) {
         return reject(new Error(GlobalErrorCodes.SERVER_ERROR));
@@ -268,7 +268,7 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
 
       // insert rows to anchor_pages table
       const anchorInsertResp = await insertAnchorPageQuery(anchorPairs).catch(() => {
-        connection.rollback();
+        connection.instance.rollback();
       })
       if (!anchorInsertResp) {
         return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
@@ -277,14 +277,14 @@ const publishTransaction = (docData, sectionData, isNewVersion) => {
       // insert rows to api_items table
       if (apiItems.length) {
         const apiItemInsertResp = await insertApiItemsQuery(apiItems).catch(() => {
-          connection.rollback();
+          connection.instance.rollback();
         })
         if (!apiItemInsertResp) {
           return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
         }
       }
 
-      connection.commit((commitErr) => {
+      connection.instance.commit((commitErr) => {
         if (commitErr) {
           return reject(new Error(GlobalErrorCodes.SERVER_ERROR))
         }
